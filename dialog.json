@@ -1,0 +1,27 @@
+{
+  "Butler": [
+    "Welcome to the Mystic Manor. Please, make yourself at home.",
+    "Ah, the pantry key. It's well hidden, but perhaps you should seek the hidden chamber.",
+    "Be careful, the ghost of the former owner is not easily defeated."
+  ],
+  "Maid": [
+    "Good day! The kitchen is just down the hall. I hope you find what you are looking for.",
+    "The pantry is locked, but I have heard whispers about a key hidden in the hidden chamber.",
+    "If you're planning to face the ghost, you'll need something special. Have you spoken to the cat in the library?"
+  ],
+  "Ghost of the Former Owner": [
+    "You dare enter my domain? You shall not pass without a fight!",
+    "To defeat me, you will need more than courage. Only the vacuum can banish me.",
+    "The hidden chamber holds many secrets. You will need to defeat me to access it."
+  ],
+  "Cat": [
+    "Meow. Welcome to the library. I have a riddle for you to solve.",
+    "Solve my riddle, and I will give you the key weapon to defeat the ghost: a vacuum.",
+    "Listen closely: I can be found in the house, yet I am not alive. What am I?"
+  ],
+  "Security Guard": [
+    "Hello there. I'm here to ensure the manor's safety.",
+    "The ghost in the master bedroom is a formidable opponent. Make sure you're prepared.",
+    "The cat in the library may have some valuable information for you."
+  ]
+}
