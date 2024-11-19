@@ -67,13 +67,14 @@ public class Inventory
         if(numberInInventory < number) {
             System.out.println("\n**Inventory - Items not removed**");
             System.out.println("You cannot remove more items than you have.");
-        } else {
-            System.out.println("\n**Inventory - Items removed***");
-            inventory.put(item, inventory.get(item) - number);
-            numberInInventory = inventory.get(item);
-            System.out.println(String.format("You have %d %s left", numberInInventory, item.getName() + (numberInInventory > 1 ? "s" : "")));
-            displayInventoryWeight();
+            return;
         }
+        System.out.println("\n**Inventory - Items removed***");
+        inventory.put(item, inventory.get(item) - number);
+        numberInInventory = inventory.get(item);
+        System.out.printf("You have %d %s left%n", numberInInventory, item.getName() + (numberInInventory > 1 ? "s" : ""));
+        displayInventoryWeight();
+        Utils.removeZeroQuantityItems(inventory);
     }
     
     /**
@@ -173,5 +174,4 @@ public class Inventory
         addItem(item, quantity);
         System.out.println("You have picked up " + quantity + " " + item.getName() + (quantity > 1 ? "s" : ""));
     }
-
 }
