@@ -1,5 +1,7 @@
 import java.lang.Character;
-import java.util.Arrays; 
+import java.util.Arrays;
+import java.util.HashMap;
+
 /**
  * Write a description of class Utils here.
  *
@@ -54,4 +56,7 @@ public class Utils {
         return Arrays.asList(array).contains(item); 
     }
 
+    public static void removeZeroQuantityItems(HashMap<Item, Integer> inventory) {
+        inventory.entrySet().removeIf(entry -> entry.getValue() == 0);
+    }
 }
