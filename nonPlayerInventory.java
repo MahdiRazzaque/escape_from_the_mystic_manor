@@ -1,3 +1,5 @@
+import jdk.jshell.execution.Util;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,7 +18,7 @@ public class nonPlayerInventory
     private Room room;
     private String name;
     
-    private String[] roomNames = { "Entrance Hall", "Library", "Dining Room", "Kitchen", "Greenhouse", "Study", "Master Bedroom","Hidden Chamber" };
+    private String[] roomNames = { "Entrance Hall", "Library", "Dining Room", "Kitchen", "Pantry", "Greenhouse", "Study", "Master Bedroom","Hidden Chamber"};
     private String[] characterNames = {"Butler", "Maid", "Ghost of the Former Owner", "Cat", "Security Guard"};
 
 
@@ -60,6 +62,7 @@ public class nonPlayerInventory
         } else {
             inventory.put(item, 0);
         }
+        Utils.removeZeroQuantityItems(inventory);
     }
     
     /**
@@ -78,7 +81,7 @@ public class nonPlayerInventory
             }
             
             String inventoryList = inventory.keySet().stream()
-                .map(item -> item.getName() + ": " + inventory.get(item))
+                .map(item -> Utils.toTitleCase(item.getName()) + ": " + inventory.get(item))
                 .collect(Collectors.joining(", "));
                 
             System.out.println(inventoryList);
@@ -92,7 +95,7 @@ public class nonPlayerInventory
             }
             
             String inventoryList = "Items: " + inventory.keySet().stream()
-                .map(item -> item.getName() + ": " + inventory.get(item))
+                .map(item -> Utils.toTitleCase(item.getName()) + ": " + inventory.get(item))
                 .collect(Collectors.joining(", "));
                 
             System.out.println(inventoryList);
