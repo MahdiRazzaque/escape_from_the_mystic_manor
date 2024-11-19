@@ -22,9 +22,9 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
-    private Room entranceHall, library, diningRoom, kitchen, greenhouse, study, masterBedroom, hiddenChamber;
+    private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber;
     private Inventory inventory;
-    private Item goldenKey, ancientBook, jewelledDagger, magicMirror, coin;
+    private Item goldenKey, ancientBook, jewelledDagger, magicMirror, coin, holyBread;
     private Character butler, maid, ghost, cat, securityGuard;
     public static HashMap<String, Item> itemMap;
     public static HashMap<String, Character> characterMap;
@@ -40,6 +40,7 @@ public class Game
         initialiseInventory();
         
         initialiseItems();
+        addItemsToRooms();
         initialiseItemMap();
 
         initialiseCharacters();
@@ -63,6 +64,7 @@ public class Game
         library = new Room("Library", "in the library filled with ancient books");
         diningRoom = new Room("Dining Room", "in the grand dining room with a large table");
         kitchen = new Room("Kitchen", "in the kitchen with a locked pantry");
+        pantry = new Room("Pantry", "in the pantry, where a vital item for your escape awaits");
         greenhouse = new Room("Greenhouse", "in the indoor garden with exotic plants");
         study = new Room("Study", "in the quiet study with a locked drawer");
         masterBedroom = new Room("Master Bedroom", "in the luxurious master bedroom of the former owner");
@@ -84,6 +86,10 @@ public class Game
         // Kitchen exits
         kitchen.setExit("south", diningRoom);
         kitchen.setExit("north", greenhouse);
+        kitchen.setExit("east", pantry);
+
+        // Pantry exits
+        pantry.setExit("west", kitchen);
         
         // Greenhouse exits
         greenhouse.setExit("south", kitchen);
@@ -171,6 +177,9 @@ public class Game
             case "room":
                 processRoomCommand(command);
                 break;
+            case "use":
+                processUseCommand(command);
+                break;
             default:
                 System.out.println("Unknown command: " + commandWord);
                 break;
@@ -238,6 +247,16 @@ public class Game
         Room nextRoom = currentRoom.getExit(direction);
         currentRoom = nextRoom;
         currentRoom.displayRoomDetails(); 
+    }
+
+    /**
+     * Moves the player to the specified room and displays the details of the new room.
+     *
+     * @param room The room to which the player will move.
+     */
+    private void goRoom(Room room) {
+        currentRoom = room;
+        currentRoom.displayRoomDetails();
     }
 
     /** 
@@ -326,7 +345,7 @@ public class Game
         }
     
         Item itemToBeDropped = itemMap.get(itemName);
-        if (inventory.numberOfItem(itemToBeDropped) <= quantity) {
+        if (inventory.numberOfItem(itemToBeDropped) < quantity) {
             System.out.println("You do not have enough " + itemName.replace("_", " ") + "s to drop");
             return;
         }
@@ -415,6 +434,105 @@ public class Game
 
     /**
      *
+     * @param command
+     */
+    private void processUseCommand(Command command) {
+        try {
+            if (!command.hasSecondWord()) {
+                System.out.println("Use what item?");
+                inventory.displayInventorySelection();
+                return;
+            }
+
+            String itemName = command.getSecondWord();
+
+            if (!itemMap.containsKey(itemName)) {
+                System.out.println("Item not found");
+                inventory.displayInventorySelection();
+                return;
+            }
+
+            if(inventory.numberOfItem(itemMap.get(itemName)) <= 0) {
+                System.out.println("You cannot use an item that you do not have.");
+                return;
+            }
+
+            switch (itemName) {
+                case "coin":
+                    System.out.println("You can only trade coins not use them.");
+                    break;
+
+                case "golden_key":
+                    System.out.println("TO BE IMPLEMENTED");
+                    break;
+
+                case "ancient_book":
+                    System.out.println("In shadows deep where secrets lie, A path to freedom draws you nigh. Five coins to feline, sleek and sly, Unlock the truth, let whispers fly.");
+                    TimeUnit.SECONDS.sleep(3);
+                    System.out.println("A dagger’s gleam, though jewels may blaze, A futile weapon in ghostly haze. Seek the mirror's hidden face, To start anew in hall’s embrace.");
+                    TimeUnit.SECONDS.sleep(3);
+                    System.out.println("The bread of sacred light will show, The door to realms where you must go. Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream.");
+                    break;
+
+                case "jewelled_dagger":
+                    if (!command.hasThirdWord()) {
+                        System.out.println("Use on what?");
+                        return;
+                    }
+
+                    String characterSelected = command.getThirdWord();
+
+                    if (!characterMap.containsKey(characterSelected)) {
+                        System.out.println("State the character you want to attack: ");
+                        currentRoom.displayCharacterSelection();
+                        return;
+                    }
+
+                    Character character = characterMap.get(characterSelected);
+
+                    if(!currentRoom.getCharacters().contains(character)) {
+                        System.out.println("You can't attack a character in a different room ");
+                    }
+
+                    if (character.getPassive()) {
+                        System.out.println("Now why would you want to attack a passive character...");
+                        return;
+                    }
+
+                    if (character.getName().equals("Ghost of the Former Owner")) {
+                        System.out.println("As you brandish the jewelled dagger, the ghost of the former owner gazes at you with a mix of pity and amusement.");
+                        TimeUnit.SECONDS.sleep(3);  // Pause for 3 seconds
+                        System.out.println("'Mortal weaponry holds no power over the ethereal,' the ghost whispers, the dagger's jewels flickering dimly.");
+                        TimeUnit.SECONDS.sleep(3);  // Pause for 3 seconds
+                        System.out.println("'Seek a different path to banish me from this realm.'");
+                        return;
+                    }
+                    break;
+
+                case "magic_mirror":
+                    System.out.println("You gaze into the magic mirror, its surface shimmering with hidden truths. As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. In an instant, you are transported back to the entrance hall, the familiar surroundings reassuring yet mysterious.");
+                    TimeUnit.SECONDS.sleep(3);
+                    goRoom(entranceHall);
+                    break;
+
+                case "holy_bread":
+                    System.out.println("TO BE IMPLEMENTED");
+                    break;
+
+                default:
+                    System.out.println("Item not found");
+                    inventory.displayInventorySelection();
+                    break;
+            }
+        } catch (InterruptedException e) {
+            System.out.println("An error occurred while processing the command.");
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     *
      * @param item
      * @param quantity
      */
@@ -441,6 +559,7 @@ public class Game
         jewelledDagger = new Item("jewelled dagger", 15);
         magicMirror = new Item("magic mirror", 5);
         coin = new Item("coin", 1);
+        holyBread = new Item("holy bread", 10);
     }
 
     /**
@@ -450,8 +569,8 @@ public class Game
         butler = new Character("Butler", true, 100, entranceHall);
         maid = new Character("Maid", true, 80, kitchen);
         ghost = new Character("Ghost of the Former Owner", false, 150, masterBedroom);
-        cat = new Character("Cat", false, 60, library);
-        securityGuard = new Character("Security Guard", false, 120, entranceHall);
+        cat = new Character("Cat", true, 60, library);
+        securityGuard = new Character("Security Guard", true, 120, entranceHall);
     }
     
     /**
@@ -460,7 +579,7 @@ public class Game
      * @param
      */
     private void initialiseInventory() {
-        inventory = new Inventory(100);
+        inventory = new Inventory(50);
     }
 
     /**
@@ -473,6 +592,7 @@ public class Game
         itemMap.put("ancient_book", ancientBook);
         itemMap.put("jewelled_dagger", jewelledDagger);
         itemMap.put("magic_mirror", magicMirror);
+        itemMap.put("holy_bread", holyBread);
     }
 
     /**
@@ -510,10 +630,30 @@ public class Game
         masterBedroom.addCharacter(ghost);       
     }
 
+    private void addItemsToRooms() {
+        // Add coins to various rooms
+        entranceHall.addItemToRoomInventory(coin, 1);
+        library.addItemToRoomInventory(coin, 1);
+        diningRoom.addItemToRoomInventory(coin, 1);
+        kitchen.addItemToRoomInventory(coin, 1);
+        study.addItemToRoomInventory(coin, 1);
+
+        // Add holy bread to the pantry
+        pantry.addItemToRoomInventory(holyBread, 1);
+
+        // Add ancient book to the library
+        library.addItemToRoomInventory(ancientBook, 1);
+
+        // Add jewelled dagger to a room other than the master bedroom (e.g., greenhouse)
+        greenhouse.addItemToRoomInventory(jewelledDagger, 1);
+
+        // Add magic mirror to the study
+        study.addItemToRoomInventory(magicMirror, 1);
+    }
+
     private void randomCharacterMovement() {
         for(Character character : characterMap.values()) {
             character.randomRoomMovement();
         }
     }
-
 }
