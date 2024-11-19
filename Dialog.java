@@ -32,7 +32,7 @@ public class Dialog {
         // Initialising dialog for Cat
         ArrayList<String> catDialog = new ArrayList<>();
         catDialog.add("Meow. Welcome to the library. I have a riddle for you to solve.");
-        catDialog.add("Solve my riddle, and I will give you the key weapon to defeat the ghost: a vacuum.");
+        catDialog.add("Solve my riddle and fetch me 5 coins, and I will give you the key weapon to defeat the ghost.");
         catDialog.add("I can remove dust and crumbs with ease, though I don’t use hands, water, or a breeze. What am I?");
         dialog.put("Cat", catDialog);
         dialogNumber.put("Cat", 0);
@@ -46,7 +46,7 @@ public class Dialog {
         dialogNumber.put("Security Guard", 0);
     }
     public static void getDialog(String character) {
-        ArrayList characterDialog = dialog.get(character);
+        ArrayList<String> characterDialog = dialog.get(character);
         Integer currentDialogNumber = dialogNumber.get(character);
         if(currentDialogNumber == 2) {
             dialogNumber.put(character, 0);
