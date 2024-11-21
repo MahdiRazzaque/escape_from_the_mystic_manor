@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 /**
  *  This class is the main class of the "World of Zuul" application. 
  *  "World of Zuul" is a very simple, text based adventure game.  Users 
@@ -298,14 +297,7 @@ public class Game
                     break;
                 }
 
-                try {
-                    quantity = Integer.parseInt(command.getFourthWord());
-                } catch (NumberFormatException e) {
-                    System.out.println("Please specify a valid quantity.");
-                    return;
-                }
-
-                processDropItem(command.getThirdWord(), quantity);
+                processDropItem(command);
                 break;
             case "pickup":
                 if (!command.hasThirdWord()) {
@@ -314,14 +306,8 @@ public class Game
                     break;
                 }
 
-                try {
-                    quantity = Integer.parseInt(command.getFourthWord());
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid quantity. Please enter a number.");
-                    return;
-                }
 
-                processPickupItem(command.getThirdWord(), quantity);
+                processPickupItem(command);
                 break;
             default:
                 System.out.println("Available inventory commands: " + "\n" + 
@@ -334,10 +320,11 @@ public class Game
     
     /**
      * Processes the dropping of an item with a specified quantity, removing it from the player's inventory and adding it to the room's inventory.
-     * @param itemName The name of the item to be dropped.
-     * @param quantity The quantity of the item to be dropped.
+     * @param command drop command to be processed
      */
-    private void processDropItem(String itemName, int quantity) {
+    private void processDropItem(Command command) {
+        String itemName = command.getThirdWord();
+        int quantity;
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
             currentRoom.displayRoomInventory();
@@ -345,6 +332,14 @@ public class Game
         }
     
         Item itemToBeDropped = itemMap.get(itemName);
+
+        try {
+            quantity = command.hasFourthWord() ? Integer.parseInt(command.getFourthWord()) : inventory.numberOfItem(itemToBeDropped);
+        } catch (NumberFormatException e) {
+            System.out.println("Please specify a valid quantity.");
+            return;
+        }
+
         if (inventory.numberOfItem(itemToBeDropped) < quantity) {
             System.out.println("You do not have enough " + itemName.replace("_", " ") + "s to drop");
             return;
@@ -355,7 +350,9 @@ public class Game
     /**
      *
      */
-    private void processPickupItem(String itemName, int quantity) {
+    private void processPickupItem(Command command) {
+        String itemName = command.getThirdWord();
+        int quantity;
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
             inventory.displayInventorySelection();
@@ -363,6 +360,14 @@ public class Game
         }
 
         Item itemToBePickedUp = itemMap.get(itemName);
+
+        try {
+            quantity = command.hasFourthWord() ? Integer.parseInt(command.getFourthWord()) : currentRoom.numberOfItemInRoomInventory(itemToBePickedUp);
+        } catch (NumberFormatException e) {
+            System.out.println("Please specify a valid quantity.");
+            return;
+        }
+
         // Check if there is enough of the item in the room
         if (currentRoom.numberOfItemInRoomInventory(itemToBePickedUp) < quantity) {
             System.out.println("Insufficient quantity in the room.");
@@ -437,96 +442,91 @@ public class Game
      * @param command
      */
     private void processUseCommand(Command command) {
-        try {
-            if (!command.hasSecondWord()) {
-                System.out.println("Use what item?");
-                inventory.displayInventorySelection();
-                return;
-            }
+        if (!command.hasSecondWord()) {
+            System.out.println("Use what item?");
+            inventory.displayInventorySelection();
+            return;
+        }
 
-            String itemName = command.getSecondWord();
+        String itemName = command.getSecondWord();
 
-            if (!itemMap.containsKey(itemName)) {
+        if (!itemMap.containsKey(itemName)) {
+            System.out.println("Item not found");
+            inventory.displayInventorySelection();
+            return;
+        }
+
+        if(inventory.numberOfItem(itemMap.get(itemName)) <= 0) {
+            System.out.println("You cannot use an item that you do not have.");
+            return;
+        }
+
+        switch (itemName) {
+            case "coin":
+                System.out.println("You can only trade coins not use them.");
+                break;
+
+            case "golden_key":
+                System.out.println("TO BE IMPLEMENTED");
+                break;
+
+            case "ancient_book":
+                System.out.println("In shadows deep where secrets lie, A path to freedom draws you nigh. Five coins to feline, sleek and sly, Unlock the truth, let whispers fly.");
+                Utils.waitSeconds(3);
+                System.out.println("A dagger’s gleam, though jewels may blaze, A futile weapon in ghostly haze. Seek the mirror's hidden face, To start anew in hall’s embrace.");
+                Utils.waitSeconds(3);
+                System.out.println("The bread of sacred light will show, The door to realms where you must go. Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream.");
+                break;
+
+            case "jewelled_dagger":
+                if (!command.hasThirdWord()) {
+                    System.out.println("Use on what?");
+                    return;
+                }
+
+                String characterSelected = command.getThirdWord();
+
+                if (!characterMap.containsKey(characterSelected)) {
+                    System.out.println("State the character you want to attack: ");
+                    currentRoom.displayCharacterSelection();
+                    return;
+                }
+
+                Character character = characterMap.get(characterSelected);
+
+                if(!currentRoom.getCharacters().contains(character)) {
+                    System.out.println("You can't attack a character in a different room ");
+                }
+
+                if (character.getPassive()) {
+                    System.out.println("Now why would you want to attack a passive character...");
+                    return;
+                }
+
+                if (character.getName().equals("Ghost of the Former Owner")) {
+                    System.out.println("As you brandish the jewelled dagger, the ghost of the former owner gazes at you with a mix of pity and amusement.");
+                    Utils.waitSeconds(3);  // Pause for 3 seconds
+                    System.out.println("'Mortal weaponry holds no power over the ethereal,' the ghost whispers, the dagger's jewels flickering dimly.");
+                    Utils.waitSeconds(3);  // Pause for 3 seconds
+                    System.out.println("'Seek a different path to banish me from this realm.'");
+                    return;
+                }
+                break;
+
+            case "magic_mirror":
+                System.out.println("You gaze into the magic mirror, its surface shimmering with hidden truths. As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. In an instant, you are transported back to the entrance hall, the familiar surroundings reassuring yet mysterious.");
+                Utils.waitSeconds(3);
+                goRoom(entranceHall);
+                break;
+
+            case "holy_bread":
+                System.out.println("TO BE IMPLEMENTED");
+                break;
+
+            default:
                 System.out.println("Item not found");
                 inventory.displayInventorySelection();
-                return;
-            }
-
-            if(inventory.numberOfItem(itemMap.get(itemName)) <= 0) {
-                System.out.println("You cannot use an item that you do not have.");
-                return;
-            }
-
-            switch (itemName) {
-                case "coin":
-                    System.out.println("You can only trade coins not use them.");
-                    break;
-
-                case "golden_key":
-                    System.out.println("TO BE IMPLEMENTED");
-                    break;
-
-                case "ancient_book":
-                    System.out.println("In shadows deep where secrets lie, A path to freedom draws you nigh. Five coins to feline, sleek and sly, Unlock the truth, let whispers fly.");
-                    TimeUnit.SECONDS.sleep(3);
-                    System.out.println("A dagger’s gleam, though jewels may blaze, A futile weapon in ghostly haze. Seek the mirror's hidden face, To start anew in hall’s embrace.");
-                    TimeUnit.SECONDS.sleep(3);
-                    System.out.println("The bread of sacred light will show, The door to realms where you must go. Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream.");
-                    break;
-
-                case "jewelled_dagger":
-                    if (!command.hasThirdWord()) {
-                        System.out.println("Use on what?");
-                        return;
-                    }
-
-                    String characterSelected = command.getThirdWord();
-
-                    if (!characterMap.containsKey(characterSelected)) {
-                        System.out.println("State the character you want to attack: ");
-                        currentRoom.displayCharacterSelection();
-                        return;
-                    }
-
-                    Character character = characterMap.get(characterSelected);
-
-                    if(!currentRoom.getCharacters().contains(character)) {
-                        System.out.println("You can't attack a character in a different room ");
-                    }
-
-                    if (character.getPassive()) {
-                        System.out.println("Now why would you want to attack a passive character...");
-                        return;
-                    }
-
-                    if (character.getName().equals("Ghost of the Former Owner")) {
-                        System.out.println("As you brandish the jewelled dagger, the ghost of the former owner gazes at you with a mix of pity and amusement.");
-                        TimeUnit.SECONDS.sleep(3);  // Pause for 3 seconds
-                        System.out.println("'Mortal weaponry holds no power over the ethereal,' the ghost whispers, the dagger's jewels flickering dimly.");
-                        TimeUnit.SECONDS.sleep(3);  // Pause for 3 seconds
-                        System.out.println("'Seek a different path to banish me from this realm.'");
-                        return;
-                    }
-                    break;
-
-                case "magic_mirror":
-                    System.out.println("You gaze into the magic mirror, its surface shimmering with hidden truths. As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. In an instant, you are transported back to the entrance hall, the familiar surroundings reassuring yet mysterious.");
-                    TimeUnit.SECONDS.sleep(3);
-                    goRoom(entranceHall);
-                    break;
-
-                case "holy_bread":
-                    System.out.println("TO BE IMPLEMENTED");
-                    break;
-
-                default:
-                    System.out.println("Item not found");
-                    inventory.displayInventorySelection();
-                    break;
-            }
-        } catch (InterruptedException e) {
-            System.out.println("An error occurred while processing the command.");
-            e.printStackTrace();
+                break;
         }
     }
 
