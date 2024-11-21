@@ -1,6 +1,7 @@
 import java.lang.Character;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Write a description of class Utils here.
@@ -58,5 +59,14 @@ public class Utils {
 
     public static void removeZeroQuantityItems(HashMap<Item, Integer> inventory) {
         inventory.entrySet().removeIf(entry -> entry.getValue() == 0);
+    }
+
+    public static void waitSeconds(int seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        } catch (InterruptedException e) {
+            System.out.println("An error occurred!");
+            e.printStackTrace();
+        }
     }
 }
