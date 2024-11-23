@@ -158,6 +158,11 @@ public class Inventory
      * @param quantity
      */
     public void dropItem(Room currentRoom, Item item, int quantity) {
+        if((currentRoom.getName().equals("Hidden Chamber") && item.getName().equals("chambers key"))
+                || (currentRoom.getName().equals("Pantry") && item.getName().equals("pantry key"))) {
+            System.out.println("If you drop the key here, the door will lock behind you, sealing its secrets forever. I can't let you do that.");
+            return;
+        }
         currentRoom.addItemToRoomInventory(item, quantity);
         removeItem(item, quantity);
         System.out.println("You have dropped " + quantity + " " + item.getName() + (quantity > 1 ? "s" : ""));
@@ -170,6 +175,11 @@ public class Inventory
      * @param quantity
      */
     public void pickupItem(Room currentRoom, Item item, int quantity) {
+        if(((calculateInventoryWeight() + item.getWeight() * quantity) > maxWeight)) {
+            System.out.println("\n**Inventory - Items not added**");
+            System.out.println("You do not have enough inventory space for this");
+            return;
+        }
         currentRoom.removeItemFromRoomInventory(item, quantity);
         addItem(item, quantity);
         System.out.println("You have picked up " + quantity + " " + item.getName() + (quantity > 1 ? "s" : ""));
