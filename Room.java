@@ -178,6 +178,7 @@ public class Room
      * @param item The character to be removed
     */
     public void removeCharacter(Character character) {
+        character.transferInventoryToRoom();
         characters.remove(character);
     }
     
@@ -212,6 +213,10 @@ public class Room
      */
     public void displayRoomInventory() {
         roomInventory.displayInventory();
+    }
+
+    public void displayRoomInventorySelection() {
+        roomInventory.displayInventorySelection();
     }
     
     /**
