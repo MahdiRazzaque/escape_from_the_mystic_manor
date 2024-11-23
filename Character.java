@@ -64,6 +64,14 @@ public class Character
     public Integer getHealth() {
         return currentHealth;
     }
+
+    public boolean getInteractedWith() {
+        return interactedWith;
+    }
+
+    public Room getCurrentRoom() {
+        return currentRoom;
+    }
     
     /**
      * Adds the provided health value to the current health of the character.
@@ -95,7 +103,7 @@ public class Character
      * Transfers the character's inventory to the room's inventory
      * when the character's health reaches zero.
      */
-    private void transferInventoryToRoom() {
+    public void transferInventoryToRoom() {
         if (currentRoom != null) {
             currentRoom.getRoomInventory().addAll(characterInventory.getInventory());
             characterInventory.clear();
