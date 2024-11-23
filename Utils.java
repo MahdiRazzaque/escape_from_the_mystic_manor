@@ -35,8 +35,17 @@ public class Utils {
             }
         }
         return titleCase.trim();
-    } 
-    
+    }
+
+    public static String roomDirToSnake(Room room, String direction) {
+        if (room == null || direction == null) {
+            return null;
+        }
+
+        return room.getName().replaceAll(" ", "_").toLowerCase() + direction;
+    }
+
+
     /**
      * Takes a string and outputs it in a box design with equals signs.
      * @param input The string to be boxed.
