@@ -24,7 +24,7 @@ public class Dialog {
         // Initialising dialog for Ghost of the Former Owner
         ArrayList<String> ghostDialog = new ArrayList<>();
         ghostDialog.add("You dare enter my domain? You shall not pass without a fight!");
-        ghostDialog.add("To defeat me, you will need more than courage. Only the vacuum can banish me.");
+        ghostDialog.add("To defeat me, you will need more than courage. Only a certain power can banish me.");
         ghostDialog.add("The hidden chamber holds many secrets. You will need to defeat me to access it.");
         dialog.put("Ghost of the Former Owner", ghostDialog);
         dialogNumber.put("Ghost of the Former Owner", 0);
