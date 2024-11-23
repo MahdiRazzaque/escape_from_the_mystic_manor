@@ -22,9 +22,13 @@ public class Game
     private Parser parser;
     private Room currentRoom;
     private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber;
+    private lockedDoor kitchenPantry, bedroomChamber;
+    private ArrayList<String> lockedDirections;
     private Inventory inventory;
-    private Item goldenKey, ancientBook, jewelledDagger, magicMirror, coin, holyBread;
+    private Item ancientBook, jewelledDagger, magicMirror, coin, holyBread, vacuum;
+    private Item pantryKey, chambersKey;
     private Character butler, maid, ghost, cat, securityGuard;
+    private static HashMap<String, lockedDoor> lockedDoorsMap;
     public static HashMap<String, Item> itemMap;
     public static HashMap<String, Character> characterMap;
     private HashMap<String, String> oppositeDirections;
@@ -44,12 +48,15 @@ public class Game
 
         initialiseCharacters();
         addCharactersToRooms();
+        addItemsToCharacters();
         initialiseCharacterMap();
+
+        initialiseLockedDoors();
+        initialiseLockedDoorsMap();
 
         initialiseOppositeDirections();
 
-        inventory.addItem(coin, 10);
-        inventory.addItem(jewelledDagger, 1);
+        inventory.addItem(coin, 5);
         inventory.displayInventory();
     }
 
@@ -57,7 +64,6 @@ public class Game
      * Create all the rooms and link their exits together.
      */
     private void createRooms()  {
-        System.out.println("This is a test!");
         // Create the rooms
         entranceHall = new Room("Entrance Hall", "in the entrance hall of the Mystic Manor");
         library = new Room("Library", "in the library filled with ancient books");
@@ -106,14 +112,12 @@ public class Game
         
         // Set the starting room
         currentRoom = entranceHall;
-        
     }
 
     /**
      *  Main play routine.  Loops until end of play.
      */
-    public void play() 
-    {            
+    public void play() {
         printWelcome();
 
         // Enter the main command loop.  Here we repeatedly read commands and
@@ -179,6 +183,9 @@ public class Game
             case "use":
                 processUseCommand(command);
                 break;
+            case "answer":
+                processAnswerCommand(command);
+                break;
             default:
                 System.out.println("Unknown command: " + commandWord);
                 break;
@@ -226,14 +233,25 @@ public class Game
 
         if (nextRoom == null) {
             System.out.println("There is no door!");
+            return;
         }
-        else {
-            backCommandStack.add(oppositeDirections.get(direction));
-            System.out.println(backCommandStack);
-            
-            currentRoom = nextRoom;
-            currentRoom.displayRoomDetails();          
+
+        if(lockedDirections.contains(Utils.roomDirToSnake(currentRoom, direction))) {
+            lockedDoor lockedDoor = lockedDoorsMap.get(Utils.roomDirToSnake(currentRoom, direction));
+
+            if(inventory.numberOfItem(lockedDoor.getKey()) == 0) {
+                System.out.println("Door is locked!");
+                System.out.printf("To enter this room you must find the %s.\n", lockedDoor.getKey().getName());
+                return;
+            }
         }
+
+        backCommandStack.add(oppositeDirections.get(direction));
+        System.out.println(backCommandStack);
+
+        currentRoom = nextRoom;
+        currentRoom.displayRoomDetails();
+
     }
     
     /** 
@@ -263,8 +281,7 @@ public class Game
      * whether we really quit the game.
      * @return true, if this command quits the game, false otherwise.
      */
-    private boolean quit(Command command) 
-    {
+    private boolean quit(Command command) {
         if(command.hasSecondWord()) {
             System.out.println("Quit what?");
             return false;
@@ -302,7 +319,7 @@ public class Game
             case "pickup":
                 if (!command.hasThirdWord()) {
                     System.out.println("Pickup what item?");
-                    currentRoom.displayRoomInventory();
+                    currentRoom.displayRoomInventorySelection();
                     break;
                 }
 
@@ -355,7 +372,7 @@ public class Game
         int quantity;
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
-            inventory.displayInventorySelection();
+            currentRoom.displayRoomInventorySelection();
             return;
         }
 
@@ -461,13 +478,12 @@ public class Game
             return;
         }
 
+        String characterSelected;
+        Character character;
+
         switch (itemName) {
             case "coin":
                 System.out.println("You can only trade coins not use them.");
-                break;
-
-            case "golden_key":
-                System.out.println("TO BE IMPLEMENTED");
                 break;
 
             case "ancient_book":
@@ -481,10 +497,11 @@ public class Game
             case "jewelled_dagger":
                 if (!command.hasThirdWord()) {
                     System.out.println("Use on what?");
+                    currentRoom.displayCharacterSelection();
                     return;
                 }
 
-                String characterSelected = command.getThirdWord();
+                characterSelected = command.getThirdWord();
 
                 if (!characterMap.containsKey(characterSelected)) {
                     System.out.println("State the character you want to attack: ");
@@ -492,10 +509,11 @@ public class Game
                     return;
                 }
 
-                Character character = characterMap.get(characterSelected);
+                character = characterMap.get(characterSelected);
 
                 if(!currentRoom.getCharacters().contains(character)) {
-                    System.out.println("You can't attack a character in a different room ");
+                    System.out.println("You can't clean a character in a different room ");
+                    return;
                 }
 
                 if (character.getPassive()) {
@@ -520,14 +538,108 @@ public class Game
                 break;
 
             case "holy_bread":
-                System.out.println("TO BE IMPLEMENTED");
+                System.out.println("As you consume the holy bread, a warmth spreads through your body.");
+                Utils.waitSeconds(2);
+                System.out.println("A radiant light fills the room, and you feel a deep sense of peace and fulfillment.");
+                Utils.waitSeconds(2);
+                System.out.println("Suddenly, you find yourself outside the manor, safe and free.");
+                Utils.waitSeconds(2);
+                System.out.println("Your quest is complete, brave traveler. The world is saved.");
+                Utils.waitSeconds(2);
+                System.out.println("Thank you for playing. Until next time, adventurer.");
+                System.exit(0);
                 break;
+
+            case "pantry_key", "chambers_key":
+                System.out.println("You do not need to use the key.");
+                System.out.println("Use the `go` command with the key in your inventory to unlock the door.");
+            break;
+
+            case "vacuum":
+                if (!command.hasThirdWord()) {
+                    System.out.println("Use on what?");
+                    currentRoom.displayCharacterSelection();
+                    return;
+                }
+
+                characterSelected = command.getThirdWord();
+
+                if (!characterMap.containsKey(characterSelected)) {
+                    System.out.println("State the character you want to clean: ");
+                    currentRoom.displayCharacterSelection();
+                    return;
+                }
+
+                character = characterMap.get(characterSelected);
+
+                if(!currentRoom.getCharacters().contains(character)) {
+                    System.out.println("You can't attack a character in a different room ");
+                    return;
+                }
+
+                if(character.getPassive()) {
+                    currentRoom.removeCharacter(character);
+                    System.out.printf("A wave of sorrow washes over the room as you realise that the %s is gone forever.\n", character.getName());
+                    System.out.println("They wouldn't have tried to hurt you. Why would you do such a thing?");
+                }
+
+                if(character.getName().equals("Ghost of the Former Owner")) {
+                    System.out.println("So, you have discovered my weakness...");
+                    Utils.waitSeconds(2);
+                    System.out.println("I feel the strength draining from me...");
+                    Utils.waitSeconds(2);
+                    System.out.println("You have defeated me, your victory is assured.");
+                    Utils.waitSeconds(2);
+                    System.out.println("The path ahead is now clear. Farewell...");
+                    System.out.println("With a final, sorrowful glance, the ghost drops the chamber's key, fading away into the ether.");
+                    currentRoom.removeCharacter(character);
+                }
+            break;
 
             default:
                 System.out.println("Item not found");
                 inventory.displayInventorySelection();
                 break;
         }
+    }
+
+    private void processAnswerCommand(Command command) {
+        if(!cat.getInteractedWith()) {
+            System.out.println("You must first uncover the riddle before attempting to answer.");
+            return;
+        }
+
+        String catRoomName = cat.getCurrentRoom().getName();
+
+        if(!currentRoom.getName().equals(catRoomName)) {
+            System.out.println("The cat's riddle remains unsolved without its presence.");
+            return;
+        }
+
+        if(inventory.numberOfItem(coin) < 5) {
+            System.out.println("The path remains closed until you possess at least five coins.");
+            return;
+        }
+
+        if(!command.hasSecondWord()) {
+            System.out.println("The riddle stands unanswered. Provide your response to proceed.");
+            return;
+        }
+
+        String answer = command.getSecondWord();
+
+        if(!answer.equalsIgnoreCase("vacuum") && !answer.equalsIgnoreCase("hoover")) {
+            System.out.println("The riddle remains unsolved. Try again.");
+            return;
+        }
+
+        if(answer.equalsIgnoreCase("hoover")) {
+            System.out.println("Ah, you're quite the clever one! The true answer is 'vacuum,' but I'll let 'hoover' slide.");
+        }
+
+        System.out.println("Purrfect! You've cracked the riddle. As promised, I shall give you the key to your escape. Use it wisely, traveler.");
+        inventory.removeItem(coin, 5);
+        givePlayerItem(cat, vacuum, 1);
     }
 
 
@@ -544,6 +656,7 @@ public class Game
 
         if(!itemMap.containsKey(item.getName())) {
             System.out.println("Item not found");
+            return;
         }
 
         character.removeItemFromCharacterInventory(item, quantity);
@@ -553,13 +666,16 @@ public class Game
     /**
      * Initialises the items in the game.
      */
-    private void initialiseItems() {    
-        goldenKey = new Item("golden key", 1);
+    private void initialiseItems() {
         ancientBook = new Item("ancient book", 20);
         jewelledDagger = new Item("jewelled dagger", 15);
         magicMirror = new Item("magic mirror", 5);
         coin = new Item("coin", 1);
         holyBread = new Item("holy bread", 10);
+        vacuum = new Item("vacuum", 10);
+
+        pantryKey = new Item("pantry key", 10);
+        chambersKey = new Item("chambers key", 10);
     }
 
     /**
@@ -582,17 +698,38 @@ public class Game
         inventory = new Inventory(50);
     }
 
+
+    private void initialiseLockedDoors() {
+        String kitchenEast = Utils.roomDirToSnake(kitchen, "east");
+        String bedroomSouth = Utils.roomDirToSnake(masterBedroom, "south");
+
+        kitchenPantry = new lockedDoor(kitchenEast, pantryKey);
+        bedroomChamber = new lockedDoor(bedroomSouth, chambersKey);
+
+        lockedDirections = new ArrayList<>();
+        lockedDirections.add(kitchenEast);
+        lockedDirections.add(bedroomSouth);
+    }
+
+    private void initialiseLockedDoorsMap() {
+        lockedDoorsMap = new HashMap<>();
+        lockedDoorsMap.put(Utils.roomDirToSnake(kitchen, "east"), kitchenPantry);
+        lockedDoorsMap.put(Utils.roomDirToSnake(masterBedroom, "south"), bedroomChamber);
+    }
+
     /**
      * Initialises the item map with all the possible items in the game.
      */
     private void initialiseItemMap() {
         itemMap = new HashMap<>();
         itemMap.put("coin", coin);
-        itemMap.put("golden_key", goldenKey);
         itemMap.put("ancient_book", ancientBook);
         itemMap.put("jewelled_dagger", jewelledDagger);
         itemMap.put("magic_mirror", magicMirror);
         itemMap.put("holy_bread", holyBread);
+        itemMap.put("pantry_key", pantryKey);
+        itemMap.put("chambers_key", chambersKey);
+        itemMap.put("vacuum", vacuum);
     }
 
     /**
@@ -603,6 +740,7 @@ public class Game
         characterMap.put("butler", butler);
         characterMap.put("maid", maid);
         characterMap.put("ghost_of_the_former_owner", ghost);
+        characterMap.put("ghost", ghost);
         characterMap.put("cat", cat);
         characterMap.put("security_guard", securityGuard);
     }
@@ -630,6 +768,11 @@ public class Game
         masterBedroom.addCharacter(ghost);       
     }
 
+    private void addItemsToCharacters() {
+        ghost.addItemToCharacterInventory(chambersKey, 1);
+        cat.addItemToCharacterInventory(vacuum, 1);
+    }
+
     private void addItemsToRooms() {
         // Add coins to various rooms
         entranceHall.addItemToRoomInventory(coin, 1);
@@ -644,11 +787,14 @@ public class Game
         // Add ancient book to the library
         library.addItemToRoomInventory(ancientBook, 1);
 
-        // Add jewelled dagger to a room other than the master bedroom (e.g., greenhouse)
+        // Add jewelled dagger to greenhouse
         greenhouse.addItemToRoomInventory(jewelledDagger, 1);
 
         // Add magic mirror to the study
         study.addItemToRoomInventory(magicMirror, 1);
+
+        //Add pantry key to hidden chambers
+        hiddenChamber.addItemToRoomInventory(pantryKey, 1);
     }
 
     private void randomCharacterMovement() {
