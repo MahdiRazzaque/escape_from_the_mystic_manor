@@ -101,6 +101,34 @@ public class nonPlayerInventory
             System.out.println(inventoryList);
         }
     }
+
+    public void displayInventorySelection() {
+        if(Utils.itemExistsInArray(characterNames, name)) {
+            if(inventory.size() <= 0) {
+                System.out.printf("Inventory of %s: None\n", name);
+                return;
+            }
+
+            String inventoryList = inventory.keySet().stream()
+                    .map(item -> item.getName().toLowerCase().replaceAll(" ", "_"))
+                    .collect(Collectors.joining(", "));
+
+            System.out.printf("Items of %s: %s\n", name, inventoryList);
+        }
+
+        if(Utils.itemExistsInArray(roomNames, name)) {
+            if(inventory.size() <= 0) {
+                System.out.println("Items: None");
+                return;
+            }
+
+            String inventoryList = inventory.keySet().stream()
+                    .map(item -> item.getName().toLowerCase().replaceAll(" ", "_"))
+                    .collect(Collectors.joining(", "));
+
+            System.out.println("Items: " + inventoryList);
+        }
+    }
     
     /**
      * An example of a method - replace this comment with your own
