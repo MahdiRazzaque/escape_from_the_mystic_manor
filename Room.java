@@ -14,45 +14,29 @@ import java.util.stream.Collectors;
  * connected to other rooms via exits.  For each existing exit, the room 
  * stores a reference to the neighboring room.
  * 
- * @author  Michael Kölling and David J. Barnes
- * @version 2016.02.29
+ * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
+ * @version 24.11.2024
  */
 
 public class Room 
 {
-    private String name, description;
-    private HashMap<String, Room> exits;        // stores exits of this room.
-    private nonPlayerInventory roomInventory;
-    private ArrayList<Character> characters = new ArrayList<>();
+    private String name, description; // The name and description of the room
+    private HashMap<String, Room> exits; // Stores exits of this room
+    private nonPlayerInventory roomInventory; // The inventory associated with the room
+    private ArrayList<Character> characters = new ArrayList<>(); // List of characters in the room
 
     /**
-     * Create a room described "description". Initially, it has
-     * no exits. "description" is something like "a kitchen" or
-     * "an open court yard".
+     * Creates a room with the specified name and description. Initially, it has no exits.
+     * The description is something like "a kitchen" or "an open court yard".
+     *
+     * @param name The room's name.
      * @param description The room's description.
      */
     public Room(String name, String description) {
         this.name = name;
         this.description = description;
         exits = new HashMap<>();
-        roomInventory = new nonPlayerInventory (name, this);
-    }
-    
-    /**
-     * Create a room described "description".
-     * Adds characters to the room when provided.
-     * If no characters are provided, the description only constructor is used.
-     * @param name The room's name
-     * @param description The room's description.
-     * @param characters ArrayList of characters to be placed in the room
-     */
-    public Room(String name, String description, ArrayList characters) {
-        this.name = name;
-        this.description = description;
-        exits = new HashMap<>();
-        
         roomInventory = new nonPlayerInventory(name, this);
-        this.characters = characters;
     }
     
     /**
@@ -66,20 +50,23 @@ public class Room
     }
 
     /**
+     * Retrieves the name of the room.
      *
-     * @return
+     * @return The name of the room.
      */
     public String getName() {
         return name;
     }
-    
+
     /**
-     * @return name The name of the room
+     * Displays the name of the room in a formatted way.
+     * Converts the name to title case, formats it with a box
+     * and then outputs it.
      */
     public void displayName() {
-        String titleCase = Utils.toTitleCase(name);
-        String boxedName = Utils.boxString(titleCase);
-        System.out.println(boxedName);
+        String titleCase = Utils.toTitleCase(name); // Convert the room name to title case
+        String boxedName = Utils.boxString(titleCase); // Format the title case name with a box
+        System.out.println(boxedName); // Print the formatted name
     }
 
     /**
@@ -117,6 +104,14 @@ public class Room
         return returnString;
     }
 
+    /**
+     * Retrieves the exits of the room.
+     * <p>
+     * This method returns a HashMap containing the exits of the room,
+     * where the keys are the directions and the values are the neighboring rooms.
+     * <p>
+     * @return A HashMap containing the exits of the room.
+     */
     public HashMap<String, Room> getExits() {
         return exits;
     }
@@ -131,57 +126,72 @@ public class Room
     {
         return exits.get(direction);
     }
-    
+
     /**
-     * Returns ArrayList of characters currently in the given room
-     * 
-     * @return ArrayList of characters currently in the given room
-    */
+     * Retrieves the list of characters currently in the room.
+     * @return An ArrayList of characters currently in the room.
+     */
     public ArrayList getCharacters() {
         return characters;
     }
-    
+
     /**
      * Outputs a string showing which characters are currently in the given room.
-    */
+     * <p>
+     * This method checks if the room has any characters. If no characters are present,
+     * it prints "Characters: None". Otherwise, it prints a list of the names of the characters
+     * currently in the room, separated by commas.
+     * <p>
+     */
     public void displayCharacters() {
-        if(characters.size() <= 0) {
-            System.out.println("Characters: None");
+        if (characters.isEmpty()) { // Check if there are no characters in the room
+            System.out.println("Characters: None"); // Print message indicating no characters are present
         } else {
-            System.out.println("Characters: " + characters.stream().map(character -> character.getName()).collect(Collectors.joining(", ")));
+            System.out.println("Characters: " + characters.stream().map(character -> character.getName()).collect(Collectors.joining(", "))); // Print names of characters in the room
         }
-        
     }
-    
+
     /**
      * Outputs a string showing which characters are currently in the given room.
-    */
+     * <p>
+     * This method checks if the room has any characters. If no characters are present,
+     * it prints "Characters: None". Otherwise, it prints a list of the names of the characters
+     * currently in the room, formatted for selection by converting the names to lowercase
+     * and replacing spaces with underscores.
+     * <p>
+     */
     public void displayCharacterSelection() {
-        if(characters.size() <= 0) {
-            System.out.println("Characters: None");
-        } else {
-            System.out.println("Characters: " + characters.stream().map(character -> character.getName().toLowerCase().replaceAll(" ", "_")).collect(Collectors.joining(", ")));
+        if (characters.isEmpty()) { // Check if there are no characters in the room
+            System.out.println("Characters: None"); // Output message indicating no characters are present
+            return;
         }
-        
+
+        System.out.println("Characters: " + characters.stream()
+                .map(character -> character.getName().toLowerCase().replaceAll(" ", "_")) // Format names for selection
+                .collect(Collectors.joining(", "))); // Join formatted names with commas
     }
-    
+
     /**
-     * Adds the given character into the room
-     * @param item The character to be added
-    */
+     * This method adds the specified character to the arrayList of characters present in the room.
+     *
+     * @param character The character to be added.
+     */
     public void addCharacter(Character character) {
         characters.add(character);
     }
-    
+
+
     /**
-     * Removes a specified character from a room
-     * @param item The character to be removed
-    */
+     * Removes the specified character from room
+     * and transfers the character's inventory to the room's inventory.
+     *
+     * @param character The character to be removed.
+     */
     public void removeCharacter(Character character) {
-        character.transferInventoryToRoom();
-        characters.remove(character);
+        character.transferInventoryToRoom(); // Transfer the character's inventory to the room's inventory
+        characters.remove(character); // Remove the character from the list of characters in the room
     }
-    
+
     /**
      * Returns the room's inventory.
      * @return The inventory associated with the room.
@@ -215,6 +225,11 @@ public class Room
         roomInventory.displayInventory("room");
     }
 
+    /**
+     * Displays the current room inventory as a selection.
+     * All the room names are converted to lowercase
+     * and spaces are replaced with underscores
+     */
     public void displayRoomInventorySelection() {
         roomInventory.displayInventorySelection("room");
     }
@@ -244,13 +259,17 @@ public class Room
     }
 
     /**
-     *
+     * Displays the details of the room.
+     * <p>
+     * This method prints the name of the room, the long description of the room,
+     * the room's inventory, and the characters present in the room.
+     * <p>
      */
     public void displayRoomDetails() {
-        displayName();
-        System.out.println(getLongDescription());
-        displayRoomInventory();
-        displayCharacters();
+        displayName(); // Print the name of the room
+        System.out.println(getLongDescription()); // Print the long description of the room
+        displayRoomInventory(); // Display the room's inventory
+        displayCharacters(); // Display the characters present in the room
     }
 }
 

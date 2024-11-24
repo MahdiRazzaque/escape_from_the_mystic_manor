@@ -1,17 +1,13 @@
-    import java.awt.*;
-    import java.lang.reflect.Array;
-    import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
 /**
  * Class Character - represents a character in an adventure game.
- *
+ * <p>
  * A "Character" represents a player or non-player character within the game, 
- * possessing attributes such as health, inventory, and location within a room.
- * 
+ * possessing attributes such as health, passiveness, inventory, and location within the map.
+ * <p>
  * @author Mahdi
  * @version 17.11.2024
  */
@@ -24,6 +20,8 @@ public class Character
     private Room currentRoom;
     private nonPlayerInventory characterInventory;
     private boolean interactedWith;
+    private boolean randomCharacterMovement;
+    private Integer randomMovementChance;
 
     /**
      * Constructs a Character object with the specified name, passivity status, maximum health, and current room.
@@ -65,14 +63,27 @@ public class Character
         return currentHealth;
     }
 
+    /**
+     * Checks if the character has been interacted with.
+     * <p>
+     * This method returns if the character has been interacted with
+     *
+     * @return true if the character has been interacted with; false otherwise.
+     */
     public boolean getInteractedWith() {
         return interactedWith;
     }
 
+
+    /**
+     * This method returns the room where the character is currently located.
+     *
+     * @return The room where the character is currently located.
+     */
     public Room getCurrentRoom() {
         return currentRoom;
     }
-    
+
     /**
      * Adds the provided health value to the current health of the character.
      * @param health The amount of health to add.
@@ -91,7 +102,7 @@ public class Character
      * @param health The amount of health to remove.
      */
     public void removeHealth(Integer health) {
-        if ((currentHealth - health) <= 0) {
+        if ((currentHealth - health) == 0) {
             currentHealth = 0;
             transferInventoryToRoom();
         } else {
@@ -111,7 +122,7 @@ public class Character
     }
     
     /**
-     * Adds an item to the character's inventory.
+     * Adds a specified quantity of an item to the character's inventory.
      * @param item The item to be added.
      * @param quantity The quantity of the item to be added.
      */
@@ -120,7 +131,7 @@ public class Character
     }
     
     /**
-     * Removes an item from the character's inventory.
+     * Removes a specified quantity of an item from the character's inventory.
      * @param item The item to be removed.
      * @param quantity The quantity of the item to be removed.
      */
@@ -158,33 +169,74 @@ public class Character
     public void addAllItemsToCharacterInventory(HashMap<Item, Integer> itemsToAdd) {
         characterInventory.addAll(itemsToAdd);
     }
-    
+
     /**
-     *
+     * Initiates interaction with the character.
+     * <p>
+     * This method triggers a dialog with the character and sets the interaction status to true.
+     * The dialog is managed by the `Dialog` class, which keeps track of the current dialog number for the character.
+     * Each interaction progresses the dialog to the next line, looping back to the beginning after reaching the end.
      */
     public void interact() {
-        Dialog.getDialog(name);
-        interactedWith = true;
+        Dialog.getDialog(name); // Trigger a dialog with the character
+        interactedWith = true; // Set the interaction status to true
     }
 
+    /**
+     * This method retrieves the room in the given direction and updates the character's
+     * current room to this new room.
+     *
+     * @param direction The direction in which to move the character.
+     */
     public void goRoom(String direction) {
-        Room nextRoom = currentRoom.getExit(direction);
-        currentRoom = nextRoom;
+        Room nextRoom = currentRoom.getExit(direction); // Retrieve the room in the specified direction
+        currentRoom = nextRoom; // Update the character's current room to the new room
     }
 
+
+    /**
+     * This method returns a HashMap containing the exits of the room where the
+     * character is currently located.
+     *
+     * @return A HashMap containing the exits of the current room.
+     */
     public HashMap<String, Room> getRoomExits() {
         return currentRoom.getExits();
     }
 
-    public void randomRoomMovement() {
-        ArrayList<String> exits = new ArrayList<>(getRoomExits().keySet());
-        Random random = new Random();
-        int randomIndex = random.nextInt(exits.size());
-        int randomChance = random.nextInt(30);
-        if(randomChance == 15 && interactedWith) {
-            goRoom(exits.get(randomIndex));
-            //System.out.println(name + " has moved to " + currentRoom.getName());
-        }
 
+    /**
+     * This method sets whether the character will move randomly and the
+     * chance of random movement.
+     *
+     * @param randomCharacterMovement Whether the character should move randomly.
+     * @param randomMovementChance The chance of the character moving randomly.
+     */
+    public void setRandomMovementValues(Boolean randomCharacterMovement, Integer randomMovementChance) {
+        this.randomCharacterMovement = randomCharacterMovement; // Set the random movement flag
+        this.randomMovementChance = randomMovementChance; // Set the random movement chance
+    }
+
+
+    /**
+     * Moves the character to a random room based on the specified random movement chance.
+     * <p>
+     * This method selects a random exit from the current room's exits and moves the character
+     * to the corresponding room if the random movement conditions are met.
+     * The conditions include the character being allowed to move randomly, the random chance
+     * being met, and the character having been interacted with.
+     * <p>
+     */
+    public void randomRoomMovement() {
+        if (!randomCharacterMovement) return; // Check if random movement is enabled
+        if (!interactedWith) return; // Check if the character has been interacted with
+        ArrayList<String> exits = new ArrayList<>(getRoomExits().keySet()); // Get the list of room exits
+        Random random = new Random();
+        int randomIndex = random.nextInt(exits.size()); // Select a random index for the exits
+        int randomChance = random.nextInt(randomMovementChance); // Generate a random chance
+        if (randomChance == randomMovementChance / 2) { // Check if movement conditions are met
+            goRoom(exits.get(randomIndex)); // Move the character to the random exit room
+            //System.out.println(name + " has moved to " + currentRoom.getName()); // Print movement confirmation
+        }
     }
 }

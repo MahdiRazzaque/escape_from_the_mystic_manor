@@ -1,19 +1,19 @@
 /**
  * This class is part of the "World of Zuul" application. 
  * "World of Zuul" is a very simple, text based adventure game.
- * 
+ * <p>
  * This class holds an enumeration of all command words known to the game.
  * It is used to recognise commands as they are typed in.
- *
- * @author  Michael Kölling and David J. Barnes
- * @version 2016.02.29
+ * <p>
+ * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
+ * @version 24.11.2024
  */
 
 public class CommandWords
 {
     // a constant array that holds all valid command words
     private static final String[] validCommands = {
-        "go", "back", "help", "inventory", "interact", "use", "answer", "room", "quit"
+        "go", "back", "help", "inventory", "interact", "use", "answer", "room", "map", "configure", "quit"
     };
 
     /**

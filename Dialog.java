@@ -1,9 +1,18 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * The Dialog class manages the dialog interactions for various characters in the game.
+ * <p>
+ * This class holds the dialogs for different characters and the current dialog number for each character.
+ * It provides a method to get the dialog for a given character and cycle through the dialog options.
+ */
 public class Dialog {
-    public static HashMap<String, ArrayList<String>> dialog = new HashMap<>();
-    public static HashMap<String, Integer> dialogNumber = new HashMap<>();
+
+    public static HashMap<String, ArrayList<String>> dialog = new HashMap<>(); // Stores the dialog for each character
+    public static HashMap<String, Integer> dialogNumber = new HashMap<>(); // Stores the current dialog number for each character
+
+    // Static block to initialise the dialogs for the characters
     static {
         // Initialising dialog for Butler
         ArrayList<String> butlerDialog = new ArrayList<>();
@@ -45,14 +54,23 @@ public class Dialog {
         dialog.put("Security Guard", securityGuardDialog);
         dialogNumber.put("Security Guard", 0);
     }
+
+    /**
+     * Retrieves and prints the next dialog for a given character.
+     * <p>
+     * This method retrieves the current dialog for the specified character and increments the dialog number.
+     * If the end of the dialog list is reached, it resets the dialog number to 0.
+     *
+     * @param character The name of the character whose dialog is to be retrieved.
+     */
     public static void getDialog(String character) {
         ArrayList<String> characterDialog = dialog.get(character);
         Integer currentDialogNumber = dialogNumber.get(character);
-        if(currentDialogNumber == 2) {
+        if (currentDialogNumber == 2) {
             dialogNumber.put(character, 0);
         } else {
             dialogNumber.put(character, currentDialogNumber + 1);
         }
-        System.out.println(String.format("[%d/3] ", currentDialogNumber+1) + characterDialog.get(currentDialogNumber));
+        System.out.println(String.format("[%d/3] ", currentDialogNumber + 1) + characterDialog.get(currentDialogNumber));
     }
 }

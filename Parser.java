@@ -3,29 +3,27 @@ import java.util.Scanner;
 /**
  * This class is part of the "World of Zuul" application. 
  * "World of Zuul" is a very simple, text based adventure game.  
- * 
+ * <p>
  * This parser reads user input and tries to interpret it as an "Adventure"
  * command. Every time it is called it reads a line from the terminal and
  * tries to interpret the line as a two word command. It returns the command
  * as an object of class Command.
- *
+ * <p>
  * The parser has a set of known command words. It checks user input against
  * the known commands, and if the input is not one of the known commands, it
  * returns a command object that is marked as an unknown command.
  * 
- * @author  Michael Kölling and David J. Barnes
+ * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
  * @version 2016.02.29
  */
-public class Parser 
-{
+public class Parser {
     private CommandWords commands;  // holds all valid command words
     private Scanner reader;         // source of command input
 
     /**
      * Create a parser to read from the terminal window.
      */
-    public Parser() 
-    {
+    public Parser() {
         commands = new CommandWords();
         reader = new Scanner(System.in);
     }
@@ -33,8 +31,7 @@ public class Parser
     /**
      * @return The next command from the user.
      */
-    public Command getCommand() 
-    {
+    public Command getCommand() {
         String inputLine;   // will hold the full input line
         String word1 = null;
         String word2 = null;
@@ -71,10 +68,60 @@ public class Parser
     }
 
     /**
+     * Prompts the user for a 'yes' or 'no' input and returns true for yes and false for no.
+     * <p>
+     * This method continually prompts the user to enter a valid response until
+     * 'yes' or 'no' (or variations) are provided. It returns true for 'yes' and false for 'no'.
+     *
+     * @return true if the user inputs 'yes' or 'y'; false if the user inputs 'no' or 'n'.
+     */
+    public boolean getYesOrNo() {
+        String inputLine; // will hold the full input line
+
+        while (true) {
+            System.out.print("> "); // print prompt
+
+            inputLine = reader.nextLine().trim().toLowerCase();
+
+            if (inputLine.equals("yes") || inputLine.equals("y")) {
+                return true;
+            } else if (inputLine.equals("no") || inputLine.equals("n")) {
+                return false;
+            } else {
+                System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+            }
+        }
+    }
+
+    /**
+     * Prompts the user to select a difficulty level and returns the corresponding string value.
+     * <p>
+     * This method repeatedly prompts the user to enter a valid difficulty level until
+     * 'easy', 'medium', or 'hard' is provided. It returns the selected difficulty level as a string.
+     *
+     * @return The selected difficulty level: 'easy', 'medium', or 'hard'.
+     */
+    public String getDifficulty() {
+        String inputLine; // will hold the full input line
+
+        while (true) {
+            System.out.print("> "); // print prompt
+
+            inputLine = reader.nextLine().trim().toLowerCase(); // read user input, trim whitespace, and convert to lowercase
+
+            switch (inputLine) {
+                case "easy" -> { return "easy"; }
+                case "medium" -> { return "medium"; }
+                case "hard" -> { return "hard"; }
+                default -> System.out.println("Invalid input. Please enter 'easy', 'medium', or 'hard'."); // prompt user for valid input
+            }
+        }
+    }
+
+    /**
      * Print out a list of valid command words.
      */
-    public void showCommands()
-    {
+    public void showCommands() {
         commands.showAll();
     }
 }

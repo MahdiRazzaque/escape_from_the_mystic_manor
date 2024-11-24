@@ -1,18 +1,22 @@
-
 /**
- * Write a description of class Item here.
+ * This class is used to create item objects.
+ * Items are objects the characters can find and use throughout the game.
+ * Each object will have a name and a weight.
  *
- * @author (your name)
- * @version (a version number or a date)
+ * @author Mahdi Razzaque
+ * @version 21.11.24
  */
-public class Item
-{
-    // instance variables - replace the example below with your own
-    private String itemName;
-    private Integer weight;
+public class Item  {
+    private String itemName; // Holds the name of the item
+    private Integer weight;  // Holds the weight of the given item.
 
     /**
-     * Constructor for objects of class Item
+     * Constructor for item objects.
+     * <p>
+     * Initialises an item with a specified name and weight.
+     *
+     * @param name Name of the item.
+     * @param weight Weight of the item.
      */
     public Item(String name, Integer weight) {
         itemName = name;
@@ -20,20 +24,22 @@ public class Item
     }
 
     /**
-     * An example of a method - replace this comment with your own
+     * Returns the name of the item.
+     * <p>
+     * This method retrieves the name of the item.
      *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
+     * @return The name of the item.
      */
     public String getName() {
         return itemName;
     }
-    
+
     /**
-     * An example of a method - replace this comment with your own
+     * Returns the weight of the item.
+     * <p>
+     * This method retrieves the weight of the item.
      *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
+     * @return The weight of the item.
      */
     public Integer getWeight() {
         return weight;
