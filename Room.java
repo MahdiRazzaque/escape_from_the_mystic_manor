@@ -212,11 +212,11 @@ public class Room
      * Displays the current room inventory.
      */
     public void displayRoomInventory() {
-        roomInventory.displayInventory();
+        roomInventory.displayInventory("room");
     }
 
     public void displayRoomInventorySelection() {
-        roomInventory.displayInventorySelection();
+        roomInventory.displayInventorySelection("room");
     }
     
     /**

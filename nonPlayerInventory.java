@@ -71,62 +71,67 @@ public class nonPlayerInventory
      * @param  y  a sample parameter for a method
      * @return    the sum of x and y
      */
-    public void displayInventory() {
-        if(Utils.itemExistsInArray(characterNames, name)) {
-            System.out.println("\n**Inventory of " + name + " **");
-            
-            if(inventory.size() <= 0) {
-                System.out.println("Inventory is empty.");
-                return;
-            }
-            
-            String inventoryList = inventory.keySet().stream()
-                .map(item -> Utils.toTitleCase(item.getName()) + ": " + inventory.get(item))
-                .collect(Collectors.joining(", "));
-                
-            System.out.println(inventoryList);
-        }
-        
-        if(Utils.itemExistsInArray(roomNames, name)) {
-           
-            if(inventory.size() <= 0) {
-                System.out.println("Items: None");
-                return;
-            }
-            
-            String inventoryList = "Items: " + inventory.keySet().stream()
-                .map(item -> Utils.toTitleCase(item.getName()) + ": " + inventory.get(item))
-                .collect(Collectors.joining(", "));
-                
-            System.out.println(inventoryList);
+    public void displayInventory(String roomOrCharacter) {
+        String inventoryList;
+        switch(roomOrCharacter) {
+            case "character":
+                System.out.println("\n**Inventory of " + name + " **");
+
+                if(inventory.size() <= 0) {
+                    System.out.println("Inventory of " + name + " is empty.");
+                    return;
+                }
+
+                inventoryList = inventory.keySet().stream()
+                        .map(item -> Utils.toTitleCase(item.getName()) + ": " + inventory.get(item))
+                        .collect(Collectors.joining(", "));
+
+                System.out.println(inventoryList);
+                break;
+
+            case "room":
+                if(inventory.size() <= 0) {
+                    System.out.println("Items: None");
+                    return;
+                }
+
+                inventoryList = "Items: " + inventory.keySet().stream()
+                        .map(item -> Utils.toTitleCase(item.getName()) + ": " + inventory.get(item))
+                        .collect(Collectors.joining(", "));
+
+                System.out.println(inventoryList);
+                break;
         }
     }
 
-    public void displayInventorySelection() {
-        if(Utils.itemExistsInArray(characterNames, name)) {
-            if(inventory.size() <= 0) {
-                System.out.printf("Inventory of %s: None\n", name);
-                return;
-            }
+    public void displayInventorySelection(String roomOrCharacter) {
+        String inventoryList;
+        switch(roomOrCharacter) {
+            case "character":
+                if(inventory.size() <= 0) {
+                    System.out.printf("Inventory of %s: None\n", name);
+                    return;
+                }
 
-            String inventoryList = inventory.keySet().stream()
-                    .map(item -> item.getName().toLowerCase().replaceAll(" ", "_"))
-                    .collect(Collectors.joining(", "));
+                inventoryList = inventory.keySet().stream()
+                        .map(item -> item.getName().toLowerCase().replaceAll(" ", "_"))
+                        .collect(Collectors.joining(", "));
 
-            System.out.printf("Items of %s: %s\n", name, inventoryList);
-        }
+                System.out.printf("Items of %s: %s\n", name, inventoryList);
+                break;
 
-        if(Utils.itemExistsInArray(roomNames, name)) {
-            if(inventory.size() <= 0) {
-                System.out.println("Items: None");
-                return;
-            }
+            case "room":
+                if(inventory.size() <= 0) {
+                    System.out.println("Items: None");
+                    return;
+                }
 
-            String inventoryList = inventory.keySet().stream()
-                    .map(item -> item.getName().toLowerCase().replaceAll(" ", "_"))
-                    .collect(Collectors.joining(", "));
+                inventoryList = inventory.keySet().stream()
+                        .map(item -> item.getName().toLowerCase().replaceAll(" ", "_"))
+                        .collect(Collectors.joining(", "));
 
-            System.out.println("Items: " + inventoryList);
+                System.out.println("Items: " + inventoryList);
+                break;
         }
     }
     

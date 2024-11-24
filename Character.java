@@ -132,7 +132,7 @@ public class Character
      * Displays the character's inventory.
      */
     public void displayCharacterInventory() {
-        characterInventory.displayInventory();
+        characterInventory.displayInventory("character");
     }
     
     /**
