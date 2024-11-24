@@ -914,7 +914,7 @@ public class Game {
         }
 
         System.out.println("Which difficulty of random character movement?");
-        System.out.println("Options: easy (1/30) | medium (1/15) | hard (1/5)");
+        System.out.println("Options [Mode/Chance]: easy (1/30) | medium (1/15) | hard (1/5)");
         Integer randomMovementChance = switch (parser.getDifficulty()) {
             case "easy" -> 30;
             case "medium" -> 15;
