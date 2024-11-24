@@ -77,7 +77,7 @@ public class nonPlayerInventory
             case "character":
                 System.out.println("\n**Inventory of " + name + " **");
 
-                if(inventory.size() <= 0) {
+                if(inventory.isEmpty()) {
                     System.out.println("Inventory of " + name + " is empty.");
                     return;
                 }
@@ -90,7 +90,7 @@ public class nonPlayerInventory
                 break;
 
             case "room":
-                if(inventory.size() <= 0) {
+                if(inventory.isEmpty()) {
                     System.out.println("Items: None");
                     return;
                 }
@@ -108,7 +108,7 @@ public class nonPlayerInventory
         String inventoryList;
         switch(roomOrCharacter) {
             case "character":
-                if(inventory.size() <= 0) {
+                if(inventory.isEmpty()) {
                     System.out.printf("Inventory of %s: None\n", name);
                     return;
                 }
@@ -121,7 +121,7 @@ public class nonPlayerInventory
                 break;
 
             case "room":
-                if(inventory.size() <= 0) {
+                if(inventory.isEmpty()) {
                     System.out.println("Items: None");
                     return;
                 }
