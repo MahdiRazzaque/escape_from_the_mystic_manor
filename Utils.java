@@ -28,13 +28,14 @@ public class Utils {
             return input;
         }
         String[] words = input.split(" ");
-        String titleCase = "";
+        StringBuilder titleCase = new StringBuilder();
         for (String word : words) {
             if (word.length() > 0) {
                 titleCase += Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase() + " ";
+                titleCase.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1).toLowerCase()).append(" ");
             }
         }
-        return titleCase.trim();
+        return titleCase.toString().trim();
     }
 
     public static String roomDirToSnake(Room room, String direction) {
