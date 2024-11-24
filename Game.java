@@ -1,27 +1,31 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
+
 /**
- *  This class is the main class of the "World of Zuul" application. 
- *  "World of Zuul" is a very simple, text based adventure game.  Users 
- *  can walk around some scenery. That's all. It should really be extended 
+ *  This class is the main class of the "World of Zuul" application.
+ *  "World of Zuul" is a very simple, text based adventure game.  Users
+ *  can walk around some scenery. That's all. It should really be extended
  *  to make it more interesting!
- * 
+ *
  *  To play this game, create an instance of this class and call the "play"
  *  method.
- * 
+ *
  *  This main class creates and initialises all the others: it creates all
  *  rooms, creates the parser and starts the game.  It also evaluates and
  *  executes the commands that the parser returns.
- * 
- * @author  Michael Kölling and David J. Barnes
- * @version 2016.02.29
+ *
+ * @author  Michael Kölling, David J. Barnes and Mahdi Razzaque
+ * @version 24.11.2024
  */
 
-public class Game 
-{
+public class Game {
     private Parser parser;
     private Room currentRoom;
     private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber;
+    private HashSet<Room> vistedRooms;
+    private ArrayList<Room> allRooms;
     private lockedDoor kitchenPantry, bedroomChamber;
     private ArrayList<String> lockedDirections;
     private Inventory inventory;
@@ -33,7 +37,8 @@ public class Game
     public static HashMap<String, Character> characterMap;
     private HashMap<String, String> oppositeDirections;
     private ArrayList<String> backCommandStack = new ArrayList<>();
-    
+    private boolean mapEnabled, randomCharacterMovement;
+
     /**
      * Create the game and initialise its internal map.
      */
@@ -41,7 +46,7 @@ public class Game
         createRooms();
         parser = new Parser();
         initialiseInventory();
-        
+
         initialiseItems();
         addItemsToRooms();
         initialiseItemMap();
@@ -56,7 +61,7 @@ public class Game
 
         initialiseOppositeDirections();
 
-        inventory.displayInventory();
+        inventory.addItem(magicMirror, 1);
     }
 
     /**
@@ -73,20 +78,20 @@ public class Game
         study = new Room("Study", "in the quiet study with a locked drawer");
         masterBedroom = new Room("Master Bedroom", "in the luxurious master bedroom of the former owner");
         hiddenChamber = new Room("Hidden Chamber", "in the hidden chamber full of secrets");
-        
+
         // Initialise room exits
         // Entrance Hall exits
         entranceHall.setExit("north", library);
         entranceHall.setExit("east", diningRoom);
-        
+
         // Library exits
         library.setExit("south", entranceHall);
         library.setExit("north", study);
-        
+
         // Dining Room exits
         diningRoom.setExit("west", entranceHall);
         diningRoom.setExit("north", kitchen);
-        
+
         // Kitchen exits
         kitchen.setExit("south", diningRoom);
         kitchen.setExit("north", greenhouse);
@@ -94,23 +99,41 @@ public class Game
 
         // Pantry exits
         pantry.setExit("west", kitchen);
-        
+
         // Greenhouse exits
         greenhouse.setExit("south", kitchen);
-        
+
         // Study exits
         study.setExit("south", library);
         study.setExit("west", masterBedroom);
-        
+
         // Master Bedroom exits
         masterBedroom.setExit("east", study);
         masterBedroom.setExit("south", hiddenChamber);
-        
+
         // Hidden chamber exits
         hiddenChamber.setExit("north", masterBedroom);
-        
+
         // Set the starting room
         currentRoom = entranceHall;
+
+        // ArrayList of all rooms
+        allRooms = new ArrayList<>();
+        allRooms.add(entranceHall);
+        allRooms.add(library);
+        allRooms.add(diningRoom);
+        allRooms.add(kitchen);
+        allRooms.add(pantry);
+        allRooms.add(greenhouse);
+        allRooms.add(study);
+        allRooms.add(masterBedroom);
+        allRooms.add(hiddenChamber);
+
+
+
+        // Track visted rooms
+        vistedRooms = new HashSet<>();
+        vistedRooms.add(currentRoom);
     }
 
     /**
@@ -121,7 +144,7 @@ public class Game
 
         // Enter the main command loop.  Here we repeatedly read commands and
         // execute them until the game is over.
-                
+
         boolean finished = false;
         while (!finished) {
             Command command = parser.getCommand();
@@ -139,9 +162,13 @@ public class Game
         System.out.println("Mystic Manor is an adventure game where you must find a way to escape.");
         System.out.println("Type 'help' if you need assistance.");
         System.out.println();
-        currentRoom.displayRoomDetails(); 
+
+        System.out.println("Before you venture forth, let us adjust a few settings to shape your journey.");
+        setGameValues();
+
+        currentRoom.displayRoomDetails();
     }
-    
+
 
     /**
      * Given a command, process (that is: execute) the command.
@@ -185,12 +212,18 @@ public class Game
             case "answer":
                 processAnswerCommand(command);
                 break;
+            case "map":
+                processMapCommand();
+                break;
+            case "configure":
+                setGameValues();
+                break;
             default:
                 System.out.println("Unknown command: " + commandWord);
                 break;
         }
 
-        // Triggers characters to randomly move to adjacent rooms with a change of 1/30
+        // Triggers characters to randomly move to adjacent rooms with a chance chosen by the player
         // Only triggered when the player is inputting commands to prevent characters from randomly moving when the player is AFK
         randomCharacterMovement();
 
@@ -202,7 +235,7 @@ public class Game
 
     /**
      * Print out some help information.
-     * Here we print some stupid, cryptic message and a list of the 
+     * Here we print some stupid, cryptic message and a list of the
      * command words.
      */
     private void printHelp() {
@@ -214,7 +247,7 @@ public class Game
     }
 
 
-    /** 
+    /**
      * Try to in to one direction. If there is an exit, enter the new
      * room, otherwise print an error message.
      */
@@ -250,10 +283,11 @@ public class Game
 
         currentRoom = nextRoom;
         currentRoom.displayRoomDetails();
+        vistedRooms.add(currentRoom);
 
     }
-    
-    /** 
+
+    /**
      * Moves the player in the specified direction. If there is an exit in the given direction,
      * the player enters the new room and the room's description is displayed.
      * This method is used for the back command
@@ -262,7 +296,7 @@ public class Game
     private void goRoom(String direction) {
         Room nextRoom = currentRoom.getExit(direction);
         currentRoom = nextRoom;
-        currentRoom.displayRoomDetails(); 
+        currentRoom.displayRoomDetails();
     }
 
     /**
@@ -275,7 +309,7 @@ public class Game
         currentRoom.displayRoomDetails();
     }
 
-    /** 
+    /**
      * "Quit" was entered. Check the rest of the command to see
      * whether we really quit the game.
      * @return true, if this command quits the game, false otherwise.
@@ -289,19 +323,19 @@ public class Game
             return true;  // signal that we want to quit
         }
     }
-    
+
     /**
      * Processes inventory-related commands.
      */
-    private void processInventoryCommand(Command command) {    
+    private void processInventoryCommand(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println("Available inventory commands: " + "\n" + 
+            System.out.println("Available inventory commands: " + "\n" +
                                 "inventory display - Display current inventory" + "\n" +
                                 "inventory drop [item] [quantity] - Drop an item from your inventory" + "\n" +
                                 "inventory pickup [item] [quantity] - Pickup an item from the current room");
             return;
         }
-        int quantity;
+
         switch (command.getSecondWord()) {
             case "display":
                 inventory.displayInventory();
@@ -326,16 +360,17 @@ public class Game
                 processPickupItem(command);
                 break;
             default:
-                System.out.println("Available inventory commands: " + "\n" + 
+                System.out.println("Available inventory commands: " + "\n" +
                                 "inventory display - Display current inventory" + "\n" +
                                 "inventory drop [item] [quantity] - Drop an item from your inventory" + "\n" +
                                 "inventory pickup [item] [quantity] - Pickup an item from the current room");
                 break;
         }
-    }  
-    
+    }
+
     /**
-     * Processes the dropping of an item with a specified quantity, removing it from the player's inventory and adding it to the room's inventory.
+     * Processes the dropping of an item with a specified quantity
+     * Removes the item from the player's inventory and adds it to the room's inventory.
      * @param command drop command to be processed
      */
     private void processDropItem(Command command) {
@@ -346,7 +381,7 @@ public class Game
             currentRoom.displayRoomInventory();
             return;
         }
-    
+
         Item itemToBeDropped = itemMap.get(itemName);
 
         try {
@@ -378,7 +413,8 @@ public class Game
         Item itemToBePickedUp = itemMap.get(itemName);
 
         try {
-            quantity = command.hasFourthWord() ? Integer.parseInt(command.getFourthWord()) : currentRoom.numberOfItemInRoomInventory(itemToBePickedUp);
+            quantity = command.hasFourthWord() ? Integer.parseInt(command.getFourthWord())
+                                               : currentRoom.numberOfItemInRoomInventory(itemToBePickedUp);
         } catch (NumberFormatException e) {
             System.out.println("Please specify a valid quantity.");
             return;
@@ -400,11 +436,11 @@ public class Game
      * The last move direction is popped from the backCommandStack and used to return to the previous room.
      */
     private void processBackCommand() {
-        if (backCommandStack.size() <= 0) {
+        if (backCommandStack.isEmpty()) {
             System.out.println("There are no rooms for you to go back to.");
             return;
         }
-        
+
         int lastIndex = backCommandStack.size() - 1;
         goRoom(backCommandStack.get(lastIndex));
         backCommandStack.remove(lastIndex);
@@ -420,9 +456,9 @@ public class Game
             currentRoom.displayCharacterSelection();
             return;
         }
-        
+
         String characterSelected = command.getSecondWord();
-        
+
         if (!characterMap.containsKey(characterSelected)) {
             System.out.println("State the character you want to interact with: ");
             currentRoom.displayCharacterSelection();
@@ -472,7 +508,7 @@ public class Game
             return;
         }
 
-        if(inventory.numberOfItem(itemMap.get(itemName)) <= 0) {
+        if(inventory.numberOfItem(itemMap.get(itemName)) == 0) {
             System.out.println("You cannot use an item that you do not have.");
             return;
         }
@@ -486,15 +522,25 @@ public class Game
                 break;
 
             case "ancient_book":
-                System.out.println("In shadows deep where secrets lie, A path to freedom draws you nigh. Five coins to feline, sleek and sly, Unlock the truth, let whispers fly.");
+                System.out.println(
+                        "In shadows deep where secrets lie, A path to freedom draws you night. " + "\n" +
+                        "Five coins to feline, sleek and sly, Unlock the truth, let whispers fly."
+                );
                 Utils.waitSeconds(3);
-                System.out.println("A dagger’s gleam, though jewels may blaze, A futile weapon in ghostly haze. Seek the mirror's hidden face, To start anew in hall’s embrace.");
+                System.out.println(
+                        "A dagger’s gleam, though jewels may blaze, A futile weapon in ghostly haze. " + "\n" +
+                        "Seek the feline's riddles, full of grace, To start anew in hall’s embrace."
+                );
                 Utils.waitSeconds(3);
-                System.out.println("The bread of sacred light will show, The door to realms where you must go. Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream.");
+                System.out.println(
+                        "The bread of sacred light will show, The door to realms where you must go. " + "\n" +
+                        "Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream."
+                );
                 break;
 
             case "jewelled_dagger":
-                if (!command.hasThirdWord()) {
+                if (!command.hasThirdWord())
+                {
                     System.out.println("Use on what?");
                     currentRoom.displayCharacterSelection();
                     return;
@@ -531,9 +577,11 @@ public class Game
                 break;
 
             case "magic_mirror":
-                System.out.println("You gaze into the magic mirror, its surface shimmering with hidden truths. As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. In an instant, you are transported back to the entrance hall, the familiar surroundings reassuring yet mysterious.");
+                Random random = new Random();
+                int index = random.nextInt(allRooms.size());
+                System.out.println("You gaze into the magic mirror, its surface shimmering with hidden truths.\n As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. In an instant, you are transported to a random room, its unfamiliar surroundings both exciting and mysterious.");
                 Utils.waitSeconds(3);
-                goRoom(entranceHall);
+                goRoom(allRooms.get(index));
                 break;
 
             case "holy_bread":
@@ -578,7 +626,9 @@ public class Game
 
                 if(character.getPassive()) {
                     currentRoom.removeCharacter(character);
-                    System.out.printf("A wave of sorrow washes over the room as you realise that the %s is gone forever.\n", character.getName());
+                    System.out.printf(
+                            "A wave of sorrow washes over the room as you realise that the %s is gone forever.\n",
+                            character.getName());
                     System.out.println("They wouldn't have tried to hurt you. Why would you do such a thing?");
                 }
 
@@ -633,12 +683,25 @@ public class Game
         }
 
         if(answer.equalsIgnoreCase("hoover")) {
-            System.out.println("Ah, you're quite the clever one! The true answer is 'vacuum,' but I'll let 'hoover' slide.");
+            System.out.println("Ah, you're quite the clever one! The true answer is 'vacuum' but I'll let 'hoover' slide.");
         }
 
-        System.out.println("Purrfect! You've cracked the riddle. As promised, I shall give you the key to your escape. Use it wisely, traveler.");
+        System.out.println("Purrfect! You've cracked the riddle. " + "\n" +
+                "As promised, I shall give you the key to your escape. Use it wisely, traveler.");
         inventory.removeItem(coin, 5);
         givePlayerItem(cat, vacuum, 1);
+    }
+
+    private void processMapCommand() {
+        if(!mapEnabled) {
+            System.out.println("Map is disabled.");
+            return;
+        }
+//        if(vistedRooms.size() != 9) {
+//            System.out.println("To unlock the secrets of the map, you must first journey through every chamber.");
+//            return;
+//        }
+        displayMap();
     }
 
 
@@ -673,8 +736,8 @@ public class Game
         holyBread = new Item("holy bread", 10);
         vacuum = new Item("vacuum", 10);
 
-        pantryKey = new Item("pantry key", 10);
-        chambersKey = new Item("chambers key", 10);
+        pantryKey = new Item("pantry key", 5);
+        chambersKey = new Item("chambers key", 5);
     }
 
     /**
@@ -687,7 +750,7 @@ public class Game
         cat = new Character("Cat", true, 60, library);
         securityGuard = new Character("Security Guard", true, 120, entranceHall);
     }
-    
+
     /**
      * An example of a method - replace this comment with your own
      *
@@ -755,7 +818,7 @@ public class Game
         oppositeDirections.put("south", "north");
         oppositeDirections.put("west", "east");
     }
-    
+
     /**
      * Adds all characters to their corresponding rooms.
      */
@@ -764,7 +827,7 @@ public class Game
         entranceHall.addCharacter(securityGuard);
         library.addCharacter(cat);
         kitchen.addCharacter(maid);
-        masterBedroom.addCharacter(ghost);       
+        masterBedroom.addCharacter(ghost);
     }
 
     private void addItemsToCharacters() {
@@ -800,5 +863,69 @@ public class Game
         for(Character character : characterMap.values()) {
             character.randomRoomMovement();
         }
+    }
+
+    private void displayMap() {
+      String[] mapLines = {
+              "================       =================       ================",
+              "||            ||_______||             ||       ||            ||",
+              "||   Master   ||_______||    Study    ||       || Greenhouse ||",
+              "||  Bedroom   ||       ||             ||       ||            ||",
+              "================       =================       ================",
+              "       ||                      ||                     ||",
+              "       ||                      ||                     ||",
+              "       ||                      ||                     ||",
+              "       ||                      ||                     ||",
+              "=======||=======       ========||=======       =======||=======        ================",
+              "||            ||       ||             ||       ||            ||________||            ||",
+              "||   Hidden   ||       ||   Library   ||       ||  Kitchen   ||________||   Pantry   ||",
+              "||  Chamber   ||       ||             ||       ||            ||        ||            ||",
+              "================       =================       ================        ================",
+              "                               ||                     ||",
+              "                               ||                     ||",
+              "                               ||                     ||",
+              "                               ||                     ||",
+              "                       =================       ================",
+              "                       ||             ||_______||            ||",
+              "                       ||  Entrance   ||_______||   Dining   ||",
+              "                       ||    Hall     ||       ||    Room    ||",
+              "                       =================       ================"
+      };
+
+        for (String line : mapLines) {
+            System.out.println(line);
+        }
+    }
+
+    private void setGameValues() {
+        System.out.println("Would you like to enable the map? y/n");
+        mapEnabled = parser.getYesOrNo();
+
+        System.out.println("Would you like to enable random character movement?");
+        System.out.println("(Characters will randomly move around the map once interacted with)");
+        randomCharacterMovement = parser.getYesOrNo();
+
+        if(!randomCharacterMovement) {
+            for(Character character : characterMap.values()) {
+                character.setRandomMovementValues(false, 100);
+            }
+            System.out.println("Game settings saved.");
+            return;
+        }
+
+        System.out.println("Which difficulty of random character movement?");
+        System.out.println("Options: easy (1/30) | medium (1/15) | hard (1/5)");
+        Integer randomMovementChance = switch (parser.getDifficulty()) {
+            case "easy" -> 30;
+            case "medium" -> 15;
+            case "hard" -> 5;
+            default -> 100;
+        };
+
+        for(Character character : characterMap.values()) {
+            character.setRandomMovementValues(true, randomMovementChance);
+        }
+
+        System.out.println("Game settings saved.\n");
     }
 }
