@@ -56,7 +56,6 @@ public class Game
 
         initialiseOppositeDirections();
 
-        inventory.addItem(coin, 5);
         inventory.displayInventory();
     }
 
