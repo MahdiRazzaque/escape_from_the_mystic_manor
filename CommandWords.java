@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 /**
  * This class is part of the "World of Zuul" application. 
  * "World of Zuul" is a very simple, text based adventure game.
@@ -9,19 +11,29 @@
  * @version 24.11.2024
  */
 
-public class CommandWords
-{
+public class CommandWords {
     // a constant array that holds all valid command words
     private static final String[] validCommands = {
         "go", "back", "help", "inventory", "interact", "use", "answer", "room", "map", "configure", "quit"
     };
+    private HashMap<String, String> commandDescriptions;
 
     /**
      * Constructor - initialise the command words.
      */
-    public CommandWords()
-    {
-        // nothing to do at the moment...
+    public CommandWords() {
+        commandDescriptions = new HashMap<>();
+        commandDescriptions.put("go", "go [north/east/south/west] - Choose a room to move into");
+        commandDescriptions.put("back", "back - Go back to the previous room");
+        commandDescriptions.put("help", "help - Show this help message");
+        commandDescriptions.put("inventory", "inventory [display/drop/pickup] - Inventory commands");
+        commandDescriptions.put("interact", "interact [character_name] - Interact with a character");
+        commandDescriptions.put("use", "use [item_name] - Use an item");
+        commandDescriptions.put("answer", "answer [your answer] - Answer a character's riddle");
+        commandDescriptions.put("room", "room [info] - Room commands");
+        commandDescriptions.put("map", "map - Display the map");
+        commandDescriptions.put("configure", "configure - Configure game settings");
+        commandDescriptions.put("quit", "quit - Quit the game");
     }
 
     /**
@@ -30,8 +42,8 @@ public class CommandWords
      */
     public boolean isCommand(String aString)
     {
-        for(int i = 0; i < validCommands.length; i++) {
-            if(validCommands[i].equals(aString))
+        for (String validCommand : validCommands) {
+            if (validCommand.equals(aString))
                 return true;
         }
         // if we get here, the string was not found in the commands
@@ -39,13 +51,11 @@ public class CommandWords
     }
 
     /**
-     * Print all valid commands to System.out.
+     * Print all valid commands and their descriptions to System.out.
      */
-    public void showAll() 
-    {
-        for(String command: validCommands) {
-            System.out.print(command + "  ");
+    public void showAll() {
+        for (String command : commandDescriptions.keySet()) {
+            System.out.println(commandDescriptions.get(command));
         }
-        System.out.println();
     }
 }
