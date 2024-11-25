@@ -8,10 +8,10 @@ import java.util.Random;
  *  "World of Zuul" is a very simple, text based adventure game.  Users
  *  can walk around some scenery. That's all. It should really be extended
  *  to make it more interesting!
- *
+ *  <p>
  *  To play this game, create an instance of this class and call the "play"
  *  method.
- *
+ *  <p>
  *  This main class creates and initialises all the others: it creates all
  *  rooms, creates the parser and starts the game.  It also evaluates and
  *  executes the commands that the parser returns.
@@ -21,26 +21,30 @@ import java.util.Random;
  */
 
 public class Game {
-    private Parser parser;
-    private Room currentRoom;
-    private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber;
-    private HashSet<Room> vistedRooms;
-    private ArrayList<Room> allRooms;
-    private lockedDoor kitchenPantry, bedroomChamber;
-    private ArrayList<String> lockedDirections;
-    private Inventory inventory;
-    private Item ancientBook, jewelledDagger, magicMirror, coin, holyBread, vacuum;
-    private Item pantryKey, chambersKey;
-    private Character butler, maid, ghost, cat, securityGuard;
-    private static HashMap<String, lockedDoor> lockedDoorsMap;
-    public static HashMap<String, Item> itemMap;
-    public static HashMap<String, Character> characterMap;
-    private HashMap<String, String> oppositeDirections;
-    private ArrayList<String> backCommandStack = new ArrayList<>();
-    private boolean mapEnabled, randomCharacterMovement;
+    private Parser parser; // The parser to handle user inputs
+    private Room currentRoom; // The current room the player is in
+    private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber; // Rooms in the game
+    private HashSet<Room> visitedRooms; // Set of visited rooms
+    private ArrayList<Room> allUnlockedRooms; // List of all unlocked rooms for use of magic mirror
+    private lockedDoor kitchenPantry, bedroomChamber; // lockedDoor objects
+    private ArrayList<String> lockedDirections; // ArrayList to store locked room/directions for goRoom command
+    private Inventory inventory; // The player's inventory
+    private Item ancientBook, jewelledDagger, magicMirror, coin, holyBread, vacuum; // Items in the game
+    private Item pantryKey, chambersKey; // Keys for locked doors
+    private Character butler, maid, ghost, cat, securityGuard; // Non-player characters in the game
+    private static HashMap<String, lockedDoor> lockedDoorsMap; // Maps room + direction to a lockedDoor object
+    public static HashMap<String, Item> itemMap; // Map of items
+    public static HashMap<String, Character> characterMap; // Map of characters
+    private HashMap<String, String> oppositeDirections; // Map of opposite directions for back command
+    private ArrayList<String> backCommandStack = new ArrayList<>(); // Stack to track the player's move commands for backtracking
+    private boolean mapEnabled, randomCharacterMovement; // Flags for if map is enabled and random character movement
+
 
     /**
-     * Create the game and initialise its internal map.
+     * Constructor for the Game class.
+     * <p>
+     * This constructor initialises the game by setting up rooms, items, characters, locked doors,
+     * and other necessary components. It calls various methods to create and initialise these components.
      */
     public Game() {
         createRooms();
@@ -60,8 +64,6 @@ public class Game {
         initialiseLockedDoorsMap();
 
         initialiseOppositeDirections();
-
-        inventory.addItem(magicMirror, 1);
     }
 
     /**
@@ -117,23 +119,19 @@ public class Game {
         // Set the starting room
         currentRoom = entranceHall;
 
-        // ArrayList of all rooms
-        allRooms = new ArrayList<>();
-        allRooms.add(entranceHall);
-        allRooms.add(library);
-        allRooms.add(diningRoom);
-        allRooms.add(kitchen);
-        allRooms.add(pantry);
-        allRooms.add(greenhouse);
-        allRooms.add(study);
-        allRooms.add(masterBedroom);
-        allRooms.add(hiddenChamber);
+        // ArrayList of all unlocked rooms (all rooms excluding hidden chambers and pantry)
+        allUnlockedRooms = new ArrayList<>();
+        allUnlockedRooms.add(entranceHall);
+        allUnlockedRooms.add(library);
+        allUnlockedRooms.add(diningRoom);
+        allUnlockedRooms.add(kitchen);
+        allUnlockedRooms.add(greenhouse);
+        allUnlockedRooms.add(study);
+        allUnlockedRooms.add(masterBedroom);
 
-
-
-        // Track visted rooms
-        vistedRooms = new HashSet<>();
-        vistedRooms.add(currentRoom);
+        // Track visited rooms
+        visitedRooms = new HashSet<>();
+        visitedRooms.add(currentRoom);
     }
 
     /**
@@ -155,6 +153,7 @@ public class Game {
 
     /**
      * Print out the opening message for the player.
+     * Prompts the player to change game settings such as if map is enabled and random character movement.
      */
     private void printWelcome() {
         System.out.println();
@@ -168,7 +167,6 @@ public class Game {
 
         currentRoom.displayRoomDetails();
     }
-
 
     /**
      * Given a command, process (that is: execute) the command.
@@ -231,7 +229,7 @@ public class Game {
         return wantToQuit;
     }
 
-    // implementations of user commands:
+    // Implementations of user commands:
 
     /**
      * Print out some help information.
@@ -268,23 +266,26 @@ public class Game {
             return;
         }
 
-        if(lockedDirections.contains(Utils.roomDirToSnake(currentRoom, direction))) {
+        // Check if the direction is locked
+        if (lockedDirections.contains(Utils.roomDirToSnake(currentRoom, direction))) {
             lockedDoor lockedDoor = lockedDoorsMap.get(Utils.roomDirToSnake(currentRoom, direction));
 
-            if(inventory.numberOfItem(lockedDoor.getKey()) == 0) {
+            // If the player doesn't have the key, prevent entry and display a message
+            if (inventory.numberOfItem(lockedDoor.getKey()) == 0) {
                 System.out.println("Door is locked!");
                 System.out.printf("To enter this room you must find the %s.\n", lockedDoor.getKey().getName());
                 return;
             }
         }
 
+        // Add the opposite direction to the back command stack for backtracking
         backCommandStack.add(oppositeDirections.get(direction));
         System.out.println(backCommandStack);
 
+        // Move the player to the next room and display its details
         currentRoom = nextRoom;
         currentRoom.displayRoomDetails();
-        vistedRooms.add(currentRoom);
-
+        visitedRooms.add(currentRoom); // Mark the room as visited
     }
 
     /**
@@ -326,13 +327,19 @@ public class Game {
 
     /**
      * Processes inventory-related commands.
+     * <p>
+     * This method handles various commands related to the inventory. It provides options to display the inventory,
+     * drop an item from the inventory, or pick up an item from the current room. If no second word is provided in
+     * the command, it displays the available inventory commands.
+     * <p>
+     * @param command The command object containing the user's input.
      */
     private void processInventoryCommand(Command command) {
         if (!command.hasSecondWord()) {
             System.out.println("Available inventory commands: " + "\n" +
-                                "inventory display - Display current inventory" + "\n" +
-                                "inventory drop [item] [quantity] - Drop an item from your inventory" + "\n" +
-                                "inventory pickup [item] [quantity] - Pickup an item from the current room");
+                    "inventory display - Display current inventory" + "\n" +
+                    "inventory drop [item] [quantity] - Drop an item from your inventory" + "\n" +
+                    "inventory pickup [item] [quantity] - Pick up an item from the current room");
             return;
         }
 
@@ -351,70 +358,84 @@ public class Game {
                 break;
             case "pickup":
                 if (!command.hasThirdWord()) {
-                    System.out.println("Pickup what item?");
+                    System.out.println("Pick up what item?");
                     currentRoom.displayRoomInventorySelection();
                     break;
                 }
-
 
                 processPickupItem(command);
                 break;
             default:
                 System.out.println("Available inventory commands: " + "\n" +
-                                "inventory display - Display current inventory" + "\n" +
-                                "inventory drop [item] [quantity] - Drop an item from your inventory" + "\n" +
-                                "inventory pickup [item] [quantity] - Pickup an item from the current room");
+                        "inventory display - Display current inventory" + "\n" +
+                        "inventory drop [item] [quantity] - Drop an item from your inventory" + "\n" +
+                        "inventory pickup [item] [quantity] - Pick up an item from the current room");
                 break;
         }
     }
 
     /**
-     * Processes the dropping of an item with a specified quantity
      * Removes the item from the player's inventory and adds it to the room's inventory.
-     * @param command drop command to be processed
+     * If the item is not found or the specified quantity is invalid, an appropriate message is displayed.
+     * <p>
+     * @param command The drop command to be processed.
      */
     private void processDropItem(Command command) {
-        String itemName = command.getThirdWord();
+        String itemName = command.getThirdWord(); // Get the item name from the command
         int quantity;
+
+        // Check if the item exists in the item map
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
             currentRoom.displayRoomInventory();
             return;
         }
 
-        Item itemToBeDropped = itemMap.get(itemName);
+        Item itemToBeDropped = itemMap.get(itemName); // Retrieve the item object from the item map
 
         try {
+            // Determine the quantity to drop, either from the command or default to the total quantity in inventory
             quantity = command.hasFourthWord() ? Integer.parseInt(command.getFourthWord()) : inventory.numberOfItem(itemToBeDropped);
         } catch (NumberFormatException e) {
             System.out.println("Please specify a valid quantity.");
             return;
         }
 
+        // Check if the player has enough of the item to drop the specified quantity
         if (inventory.numberOfItem(itemToBeDropped) < quantity) {
             System.out.println("You do not have enough " + itemName.replace("_", " ") + "s to drop");
             return;
         }
+
+        // Remove the item from the player's inventory and add it to the room's inventory
         inventory.dropItem(currentRoom, itemToBeDropped, quantity);
     }
 
     /**
-     *
+     * Processes the picking up of an item with a specified quantity.
+     * <p>
+     * Removes the item from the room's inventory and adds it to the player's inventory.
+     * If the item is not found or the specified quantity is invalid, an appropriate message is displayed.
+     * <p>
+     * @param command The pickup command to be processed.
      */
     private void processPickupItem(Command command) {
-        String itemName = command.getThirdWord();
+        String itemName = command.getThirdWord(); // Get the item name from the command
         int quantity;
+
+        // Check if the item exists in the item map
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
             currentRoom.displayRoomInventorySelection();
             return;
         }
 
-        Item itemToBePickedUp = itemMap.get(itemName);
+        Item itemToBePickedUp = itemMap.get(itemName); // Retrieve the item object from the item map
 
         try {
+            // Determine the quantity to pick up, either from the command or default to the total quantity in the room
             quantity = command.hasFourthWord() ? Integer.parseInt(command.getFourthWord())
-                                               : currentRoom.numberOfItemInRoomInventory(itemToBePickedUp);
+                    : currentRoom.numberOfItemInRoomInventory(itemToBePickedUp);
         } catch (NumberFormatException e) {
             System.out.println("Please specify a valid quantity.");
             return;
@@ -426,7 +447,7 @@ public class Game {
             return;
         }
 
-        // Perform the pickup
+        // Remove the item from the room inventory and add it to the player inventory
         inventory.pickupItem(currentRoom, itemToBePickedUp, quantity);
     }
 
@@ -447,68 +468,90 @@ public class Game {
     }
 
     /**
-     *
-     * @param command
+     * This method handles the command to interact with a specified character in the current room.
+     * If no second word is provided in the command, it prompts the player to specify the character.
+     * If the character is not found, it prompts the player again to specify the character.
+     * <p>
+     * @param command The interact command to be processed.
      */
     private void processInteractCommand(Command command) {
-        if(!command.hasSecondWord()) {
+        if (!command.hasSecondWord()) {
+            // Prompt the player to state the character to interact with if not provided
             System.out.println("State the character you want to interact with: ");
+            System.out.println("interact [character_name]");
             currentRoom.displayCharacterSelection();
             return;
         }
 
-        String characterSelected = command.getSecondWord();
+        String characterSelected = command.getSecondWord(); // Get the character name from the command
 
+        // Check if the character exists in the character map
         if (!characterMap.containsKey(characterSelected)) {
+            // Prompt the player again to state the character if not found
             System.out.println("State the character you want to interact with: ");
             currentRoom.displayCharacterSelection();
             return;
         }
 
+        // Interact with the specified character
         characterMap.get(characterSelected).interact();
     }
 
     /**
+     * This method handles various commands related to the current room. It provides options to display information about the current room.
+     * If no second word is provided in the command, it displays the available room commands.
      *
-     * @param command
+     * @param command The room command to be processed.
      */
     private void processRoomCommand(Command command) {
-        if(!command.hasSecondWord()) {
+        if (!command.hasSecondWord()) {
+            // Display available room commands if no second word is provided
             System.out.println("Available room commands: " + "\n" +
                     "room info - Display information about the current room");
             return;
         }
 
-        switch(command.getSecondWord()) {
+        switch (command.getSecondWord()) {
             case "info":
+                // Display details of the current room
                 currentRoom.displayRoomDetails();
                 break;
             default:
+                // Display available room commands if the command is not recognised
                 System.out.println("Available room commands: " + "\n" +
                         "room info - Display information about the current room");
         }
     }
 
+
     /**
-     *
-     * @param command
+     * Processes the use command for an item.
+     * <p>
+     * This method handles the command to use a specified item from the inventory. If no second word is provided,
+     * it prompts the player to specify the item. If the item is not found or the player does not have the item,
+     * an appropriate message is displayed.
+     * <p>
+     * @param command The use command to be processed.
      */
     private void processUseCommand(Command command) {
         if (!command.hasSecondWord()) {
+            // Prompt the player to state the item to use if not provided
             System.out.println("Use what item?");
             inventory.displayInventorySelection();
             return;
         }
 
-        String itemName = command.getSecondWord();
+        String itemName = command.getSecondWord(); // Get the item name from the command
 
+        // Check if the item exists in the item map
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
             inventory.displayInventorySelection();
             return;
         }
 
-        if(inventory.numberOfItem(itemMap.get(itemName)) == 0) {
+        // Check if the player has the item in their inventory
+        if (inventory.numberOfItem(itemMap.get(itemName)) == 0) {
             System.out.println("You cannot use an item that you do not have.");
             return;
         }
@@ -522,32 +565,34 @@ public class Game {
                 break;
 
             case "ancient_book":
+                // Display cryptic messages related to the ancient book
                 System.out.println(
                         "In shadows deep where secrets lie, A path to freedom draws you night. " + "\n" +
-                        "Five coins to feline, sleek and sly, Unlock the truth, let whispers fly."
+                                "Five coins to feline, sleek and sly, Unlock the truth, let whispers fly."
                 );
                 Utils.waitSeconds(3);
                 System.out.println(
                         "A dagger’s gleam, though jewels may blaze, A futile weapon in ghostly haze. " + "\n" +
-                        "Seek the feline's riddles, full of grace, To start anew in hall’s embrace."
+                                "Seek the feline's riddles, full of grace, To start anew in hall’s embrace."
                 );
                 Utils.waitSeconds(3);
                 System.out.println(
                         "The bread of sacred light will show, The door to realms where you must go. " + "\n" +
-                        "Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream."
+                                "Follow clues, and wisdom gleam, To wake the dawn from twilight’s dream."
                 );
                 break;
 
             case "jewelled_dagger":
-                if (!command.hasThirdWord())
-                {
+                // Prompt the player to state what to use the item on
+                if (!command.hasThirdWord()) {
                     System.out.println("Use on what?");
                     currentRoom.displayCharacterSelection();
                     return;
                 }
 
-                characterSelected = command.getThirdWord();
+                characterSelected = command.getThirdWord(); // Get the character name to use the dagger on
 
+                // Check if the character exists in the character map
                 if (!characterMap.containsKey(characterSelected)) {
                     System.out.println("State the character you want to attack: ");
                     currentRoom.displayCharacterSelection();
@@ -556,16 +601,19 @@ public class Game {
 
                 character = characterMap.get(characterSelected);
 
-                if(!currentRoom.getCharacters().contains(character)) {
-                    System.out.println("You can't clean a character in a different room ");
+                // Check if the character is in the current room
+                if (!currentRoom.getCharacters().contains(character)) {
+                    System.out.println("You can't attack a character in a different room");
                     return;
                 }
 
+                // Check if the character is passive
                 if (character.getPassive()) {
                     System.out.println("Now why would you want to attack a passive character...");
                     return;
                 }
 
+                // Special case for the Ghost of the Former Owner
                 if (character.getName().equals("Ghost of the Former Owner")) {
                     System.out.println("As you brandish the jewelled dagger, the ghost of the former owner gazes at you with a mix of pity and amusement.");
                     Utils.waitSeconds(3);  // Pause for 3 seconds
@@ -577,21 +625,30 @@ public class Game {
                 break;
 
             case "magic_mirror":
+                // Use the magic mirror to transport to a random room
                 Random random = new Random();
-                int index = random.nextInt(allRooms.size());
-                System.out.println("You gaze into the magic mirror, its surface shimmering with hidden truths.\n As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. In an instant, you are transported to a random room, its unfamiliar surroundings both exciting and mysterious.");
+                int index = random.nextInt(allUnlockedRooms.size());
+                System.out.println(
+                        "You gaze into the magic mirror, its surface shimmering with hidden truths." + "\n" +
+                        "As your reflection wavers, a sudden flash of light surrounds you, and you feel a gentle pull. " + "\n" +
+                        "In an instant, you are transported to a random room, its unfamiliar surroundings both exciting and mysterious."
+                );
+                //Clear the backCommandStack to prevent errors
+                backCommandStack.clear();
+                System.out.println("The magic of the mirror wipes away your recent steps, leaving only the path ahead to explore.");
                 Utils.waitSeconds(3);
-                goRoom(allRooms.get(index));
+                goRoom(allUnlockedRooms.get(index));
                 break;
 
             case "holy_bread":
+                // Use the holy bread for a special effect
                 System.out.println("As you consume the holy bread, a warmth spreads through your body.");
                 Utils.waitSeconds(2);
-                System.out.println("A radiant light fills the room, and you feel a deep sense of peace and fulfillment.");
+                System.out.println("A radiant light fills the room, and you feel a deep sense of peace and fulfilment.");
                 Utils.waitSeconds(2);
                 System.out.println("Suddenly, you find yourself outside the manor, safe and free.");
                 Utils.waitSeconds(2);
-                System.out.println("Your quest is complete, brave traveler. The world is saved.");
+                System.out.println("Your quest is complete, brave traveller. The world is saved.");
                 Utils.waitSeconds(2);
                 System.out.println("Thank you for playing. Until next time, adventurer.");
                 System.exit(0);
@@ -600,17 +657,19 @@ public class Game {
             case "pantry_key", "chambers_key":
                 System.out.println("You do not need to use the key.");
                 System.out.println("Use the `go` command with the key in your inventory to unlock the door.");
-            break;
+                break;
 
             case "vacuum":
+                // Prompt the player to state what to use the item on
                 if (!command.hasThirdWord()) {
                     System.out.println("Use on what?");
                     currentRoom.displayCharacterSelection();
                     return;
                 }
 
-                characterSelected = command.getThirdWord();
+                characterSelected = command.getThirdWord(); // Get the character name to use the vacuum on
 
+                // Check if the character exists in the character map
                 if (!characterMap.containsKey(characterSelected)) {
                     System.out.println("State the character you want to clean: ");
                     currentRoom.displayCharacterSelection();
@@ -619,20 +678,24 @@ public class Game {
 
                 character = characterMap.get(characterSelected);
 
-                if(!currentRoom.getCharacters().contains(character)) {
-                    System.out.println("You can't attack a character in a different room ");
+                // Check if the character is in the current room
+                if (!currentRoom.getCharacters().contains(character)) {
+                    System.out.println("You can't clean a character in a different room");
                     return;
                 }
 
-                if(character.getPassive()) {
+                // Special case for passive characters
+                if (character.getPassive()) {
                     currentRoom.removeCharacter(character);
                     System.out.printf(
                             "A wave of sorrow washes over the room as you realise that the %s is gone forever.\n",
                             character.getName());
                     System.out.println("They wouldn't have tried to hurt you. Why would you do such a thing?");
+                    return;
                 }
 
-                if(character.getName().equals("Ghost of the Former Owner")) {
+                // Special case for the Ghost of the Former Owner
+                if (character.getName().equals("Ghost of the Former Owner")) {
                     System.out.println("So, you have discovered my weakness...");
                     Utils.waitSeconds(2);
                     System.out.println("I feel the strength draining from me...");
@@ -642,8 +705,9 @@ public class Game {
                     System.out.println("The path ahead is now clear. Farewell...");
                     System.out.println("With a final, sorrowful glance, the ghost drops the chamber's key, fading away into the ether.");
                     currentRoom.removeCharacter(character);
+                    return;
                 }
-            break;
+                break;
 
             default:
                 System.out.println("Item not found");
@@ -652,76 +716,110 @@ public class Game {
         }
     }
 
+    /**
+     * Processes the answer command for the cat's riddle.
+     * <p>
+     * This method handles the command to answer the cat's riddle. If the player has not interacted with the cat,
+     * or if the player is not in the same room as the cat, or if the player does not have enough coins,
+     * an appropriate message is displayed. If the answer is correct, the player is rewarded.
+     * <p>
+     * @param command The answer command to be processed.
+     */
     private void processAnswerCommand(Command command) {
-        if(!cat.getInteractedWith()) {
+        // Check if the player has interacted with the cat
+        if (!cat.getInteractedWith()) {
             System.out.println("You must first uncover the riddle before attempting to answer.");
             return;
         }
 
-        String catRoomName = cat.getCurrentRoom().getName();
+        String catRoomName = cat.getCurrentRoom().getName(); // Get the name of the room where the cat is located
 
-        if(!currentRoom.getName().equals(catRoomName)) {
+        // Check if the player is in the same room as the cat
+        if (!currentRoom.getName().equals(catRoomName)) {
             System.out.println("The cat's riddle remains unsolved without its presence.");
             return;
         }
 
-        if(inventory.numberOfItem(coin) < 5) {
+        // Check if the player has at least five coins
+        if (inventory.numberOfItem(coin) < 5) {
             System.out.println("The path remains closed until you possess at least five coins.");
             return;
         }
 
-        if(!command.hasSecondWord()) {
+        // Check if the command has a second word (the answer to the riddle)
+        if (!command.hasSecondWord()) {
             System.out.println("The riddle stands unanswered. Provide your response to proceed.");
             return;
         }
 
-        String answer = command.getSecondWord();
+        String answer = command.getSecondWord(); // Get the player's answer
 
-        if(!answer.equalsIgnoreCase("vacuum") && !answer.equalsIgnoreCase("hoover")) {
+        // Check if the answer is correct
+        if (!answer.equalsIgnoreCase("vacuum") && !answer.equalsIgnoreCase("hoover")) {
             System.out.println("The riddle remains unsolved. Try again.");
             return;
         }
 
-        if(answer.equalsIgnoreCase("hoover")) {
+        // Special message if the answer is "hoover"
+        if (answer.equalsIgnoreCase("hoover")) {
             System.out.println("Ah, you're quite the clever one! The true answer is 'vacuum' but I'll let 'hoover' slide.");
         }
 
+        // Correct answer response
         System.out.println("Purrfect! You've cracked the riddle. " + "\n" +
-                "As promised, I shall give you the key to your escape. Use it wisely, traveler.");
-        inventory.removeItem(coin, 5);
-        givePlayerItem(cat, vacuum, 1);
+                "As promised, I shall give you the key to your escape. Use it wisely, traveller.");
+        inventory.removeItem(coin, 5); // Remove five coins from the player's inventory
+        givePlayerItem(cat, vacuum, 1); // Give the vacuum item to the player
     }
 
+    /**
+     * Processes the map command.
+     * <p>
+     * This method handles the command to display the map. If the map is disabled, it informs the player.
+     * Originally, the player had to explore all rooms to access the map, but now they have the option to enable the map.
+     */
     private void processMapCommand() {
         if(!mapEnabled) {
             System.out.println("Map is disabled.");
             return;
         }
-//        if(vistedRooms.size() != 9) {
-//            System.out.println("To unlock the secrets of the map, you must first journey through every chamber.");
-//            return;
-//        }
+        /*
+        if(visitedRooms.size() != 9) {
+            System.out.println("To unlock the secrets of the map, you must first journey through every chamber.");
+            return;
+        }
+        */
         displayMap();
     }
 
-
     /**
-     *
-     * @param item
-     * @param quantity
+     * Transfers an item from a character to the player's inventory.
+     * <p>
+     * This method checks if the character has enough of the specified item to give to the player.
+     * If the character has fewer items than the specified quantity, an appropriate message is displayed.
+     * The item is then removed from the character's inventory and added to the player's inventory.
+     * <p>
+     * @param character The character giving the item.
+     * @param item The item to be given to the player.
+     * @param quantity The quantity of the item to be transferred.
      */
     public void givePlayerItem(Character character, Item item, Integer quantity) {
-        if(character.numberOfItemInCharacterInventory(item) > quantity) {
+        // Check if the character has more items than the specified quantity
+        if (character.numberOfItemInCharacterInventory(item) < quantity) {
             System.out.println("Character cannot give more items than they have");
             return;
         }
 
-        if(!itemMap.containsKey(item.getName())) {
+        // Check if the item exists in the item map
+        if (!itemMap.containsKey(item.getName())) {
             System.out.println("Item not found");
             return;
         }
 
+        // Remove the item from the character's inventory
         character.removeItemFromCharacterInventory(item, quantity);
+
+        // Add the item to the player's inventory
         inventory.addItem(item, quantity);
     }
 
@@ -752,30 +850,49 @@ public class Game {
     }
 
     /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param
+     * Initialises the inventory
      */
     private void initialiseInventory() {
         inventory = new Inventory(50);
     }
 
-
+    /**
+     * Initialises the lockedDoors objects in the game.
+     * <p>
+     * This method creates lockedDoors within the game. Each lockedDoor takes a room and a direction to lock.
+     * The room name and direction is concatenated to store the position of the locked door.
+     * When moving rooms, the game checks to see if the current room the player is in,
+     * and the direction they're trying to move in is locked. They m
+     */
     private void initialiseLockedDoors() {
+        // Convert room and direction to a string format used for identifying locked doors
         String kitchenEast = Utils.roomDirToSnake(kitchen, "east");
         String bedroomSouth = Utils.roomDirToSnake(masterBedroom, "south");
 
+        // Create locked doors with corresponding keys
         kitchenPantry = new lockedDoor(kitchenEast, pantryKey);
         bedroomChamber = new lockedDoor(bedroomSouth, chambersKey);
 
+        // Initialise the list of locked directions
         lockedDirections = new ArrayList<>();
         lockedDirections.add(kitchenEast);
         lockedDirections.add(bedroomSouth);
     }
 
+    /**
+     * Initialises the map for locked doors in the game.
+     * <p>
+     * This method creates a map that associates locked door position strings with corresponding lockedDoor objects.
+     * It adds specific locked doors for directions from certain rooms, making it easier to look up locked doors by their position.
+     */
     private void initialiseLockedDoorsMap() {
+        // Create a map to associate the locked door position strings with the corresponding lockedDoor objects
         lockedDoorsMap = new HashMap<>();
+
+        // Add the kitchen east direction and the corresponding lockedDoor object to the map
         lockedDoorsMap.put(Utils.roomDirToSnake(kitchen, "east"), kitchenPantry);
+
+        // Add the master bedroom south direction and the corresponding lockedDoor object to the map
         lockedDoorsMap.put(Utils.roomDirToSnake(masterBedroom, "south"), bedroomChamber);
     }
 
@@ -807,7 +924,6 @@ public class Game {
         characterMap.put("security_guard", securityGuard);
     }
 
-
     /**
      * Initialises a HashMap that maps each direction (north, east, south, west) to its opposite direction.
      */
@@ -830,11 +946,17 @@ public class Game {
         masterBedroom.addCharacter(ghost);
     }
 
+    /**
+     * Adds specific items to the inventories of characters in the game.
+     */
     private void addItemsToCharacters() {
         ghost.addItemToCharacterInventory(chambersKey, 1);
         cat.addItemToCharacterInventory(vacuum, 1);
     }
 
+    /**
+     * Adds items around the map
+     */
     private void addItemsToRooms() {
         // Add coins to various rooms
         entranceHall.addItemToRoomInventory(coin, 1);
@@ -859,14 +981,27 @@ public class Game {
         hiddenChamber.addItemToRoomInventory(pantryKey, 1);
     }
 
+    /**
+     * Handles random movement of characters within the game.
+     * <p>
+     * This method iterates over all characters in the character map and triggers random room movement for each character.
+     */
     private void randomCharacterMovement() {
-        for(Character character : characterMap.values()) {
+        // Iterate over all characters in the character map
+        for (Character character : characterMap.values()) {
+            // Trigger random room movement for the character
             character.randomRoomMovement();
         }
     }
 
+    /**
+     * Displays the map of the game world.
+     * <p>
+     * This method prints a visual representation of the game's map to the console.
+     * The map consists of various rooms connected by directions, representing the layout of the game world.
+     */
     private void displayMap() {
-      String[] mapLines = {
+        String[] mapLines = {
               "================       =================       ================",
               "||            ||_______||             ||       ||            ||",
               "||   Master   ||_______||    Study    ||       || Greenhouse ||",
@@ -890,29 +1025,42 @@ public class Game {
               "                       ||  Entrance   ||_______||   Dining   ||",
               "                       ||    Hall     ||       ||    Room    ||",
               "                       =================       ================"
-      };
+        };
 
+        // Print each line of the map to the console
         for (String line : mapLines) {
             System.out.println(line);
         }
     }
 
+    /**
+     * Configures the game settings at game start and user input
+     * <p>
+     * This method prompts the player to enable or disable the map and random character movement.
+     * It also allows the player to set the difficulty level for random character movement.
+     * <p>
+     * The settings are then applied to the game.
+     */
     private void setGameValues() {
+        // Prompt the player to enable or disable the map
         System.out.println("Would you like to enable the map? y/n");
         mapEnabled = parser.getYesOrNo();
 
+        // Prompt the player to enable or disable random character movement
         System.out.println("Would you like to enable random character movement?");
         System.out.println("(Characters will randomly move around the map once interacted with)");
         randomCharacterMovement = parser.getYesOrNo();
 
-        if(!randomCharacterMovement) {
-            for(Character character : characterMap.values()) {
+        // If random character movement is disabled, set the movement values and save settings
+        if (!randomCharacterMovement) {
+            for (Character character : characterMap.values()) {
                 character.setRandomMovementValues(false, 100);
             }
             System.out.println("Game settings saved.");
             return;
         }
 
+        // Prompt the player to select the difficulty level for random character movement
         System.out.println("Which difficulty of random character movement?");
         System.out.println("Options [Mode/Chance]: easy (1/30) | medium (1/15) | hard (1/5)");
         Integer randomMovementChance = switch (parser.getDifficulty()) {
@@ -922,7 +1070,8 @@ public class Game {
             default -> 100;
         };
 
-        for(Character character : characterMap.values()) {
+        // Set the random movement values for each character based on the selected difficulty
+        for (Character character : characterMap.values()) {
             character.setRandomMovementValues(true, randomMovementChance);
         }
 
