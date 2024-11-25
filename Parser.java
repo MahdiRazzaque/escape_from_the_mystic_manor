@@ -40,7 +40,7 @@ public class Parser {
 
         System.out.print("> ");     // print prompt
 
-        inputLine = reader.nextLine();
+        inputLine = reader.nextLine().toLowerCase().trim();
 
         // Find up to two words on the line.
         Scanner tokenizer = new Scanner(inputLine);
