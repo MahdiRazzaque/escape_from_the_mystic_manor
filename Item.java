@@ -21,6 +21,7 @@ public class Item  {
     public Item(String name, Integer weight) {
         itemName = name;
         this.weight = weight;
+        Game.itemMap.put(Utils.toSnakeCase(name), this);
     }
 
     /**

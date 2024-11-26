@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 /**
  * Class Room - a room in an adventure game.
  *
- * This class is part of the "World of Zuul" application. 
- * "World of Zuul" is a very simple, text based adventure game.  
+ * This class is part of the "Escape from the Mystic Manor" application. 
+ * "Escape from the Mystic Manor" is a very simple, text based adventure game.  
  *
  * A "Room" represents one location in the scenery of the game.  It is 
  * connected to other rooms via exits.  For each existing exit, the room 
@@ -27,7 +27,7 @@ public class Room
 
     /**
      * Creates a room with the specified name and description. Initially, it has no exits.
-     * The description is something like "a kitchen" or "an open court yard".
+     * The description is something like "a kitchen" or "an open courtyard".
      *
      * @param name The room's name.
      * @param description The room's description.
@@ -37,6 +37,11 @@ public class Room
         this.description = description;
         exits = new HashMap<>();
         roomInventory = new nonPlayerInventory(name, this);
+
+        //Add all unlocked rooms to ArrayList for magic mirror
+        if(!name.equalsIgnoreCase("Hidden Chamber") && !name.equalsIgnoreCase("Pantry")) {
+            Game.allUnlockedRooms.add(this);
+        }
     }
     
     /**

@@ -37,6 +37,8 @@ public class Character
         this.currentRoom = currentRoom;
         characterInventory = new nonPlayerInventory(name, currentRoom);
         interactedWith = false;
+
+        Game.characterMap.put(Utils.toSnakeCase(name), this);
     }
 
     /**
@@ -189,8 +191,12 @@ public class Character
      * @param direction The direction in which to move the character.
      */
     public void goRoom(String direction) {
+        currentRoom.removeCharacter(this);
         Room nextRoom = currentRoom.getExit(direction); // Retrieve the room in the specified direction
         currentRoom = nextRoom; // Update the character's current room to the new room
+        currentRoom.addCharacter(this);
+
+
     }
 
 
