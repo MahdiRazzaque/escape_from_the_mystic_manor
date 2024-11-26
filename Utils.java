@@ -45,11 +45,20 @@ public class Utils {
         return room.getName().replaceAll(" ", "_").toLowerCase() + direction;
     }
 
+    /**
+     * Takes an input string and converts it to snake case by replacing spaces with underscores
+     * and converting all characters to lowercase.
+     *
+     * @param input The input string to be converted.
+     * @return The input string in snake case format, or the original string if it is null or empty.
+     */
     public static String toSnakeCase(String input) {
+        // Check if the input string is null or empty
         if (input == null || input.isEmpty()) {
-            return input;
+            return input; // Return the original string if it is null or empty
         }
 
+        // Replace all spaces with underscores and convert to lowercase
         return input.replaceAll(" ", "_").toLowerCase();
     }
 
