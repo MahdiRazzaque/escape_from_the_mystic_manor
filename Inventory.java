@@ -36,6 +36,25 @@ public class Inventory
     }
 
     /**
+     * Returns the total weight of items currently in the player's inventory.
+     *
+     * @return The total weight of items in the inventory.
+     */
+    public Integer getWeight() {
+        return weight;
+    }
+
+    /**
+     * Returns the maximum weight that the player's inventory can hold.
+     *
+     * @return The maximum weight capacity of the inventory.
+     */
+    public Integer getMaxWeight() {
+        return maxWeight;
+    }
+
+
+    /**
      * Adds a specified number of items to the inventory.
      * <p>
      * This method checks if adding the items will exceed the maximum weight capacity.
