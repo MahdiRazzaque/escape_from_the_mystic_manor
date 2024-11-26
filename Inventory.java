@@ -61,7 +61,7 @@ public class Inventory
             return;
         }
 
-        inventory.put(item, inventory.get(item) + number); // Adds the quantity provided to the exisiting count
+        inventory.put(item, inventory.get(item) + number); // Adds the quantity provided to the existing count
         System.out.println("\n**Inventory - Items added**");
         System.out.println(String.format("Added %d %s to your inventory", number, item.getName() + (number > 1 ? "s" : "")));
         displayInventoryWeight();
@@ -176,15 +176,16 @@ public class Inventory
         calculateInventoryWeight(); // Calculate the total weight of the items in the inventory
         System.out.println(String.format("Total weight: %d/%d", weight, maxWeight)); // Print the total weight and the maximum weight
     }
-    
+
     /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
+     * Returns the number of items in the inventory. If the item is not found,
+     * it defaults to returning 0.
+     * <p>
+     * @param item The item whose quantity is to be retrieved.
+     * @return The quantity of the item in the inventory.
      */
     public Integer numberOfItem(Item item) {
-        return inventory.getOrDefault(item, 0);      
+        return inventory.getOrDefault(item, 0);
     }
 
     /**
