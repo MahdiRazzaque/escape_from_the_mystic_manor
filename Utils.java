@@ -45,6 +45,14 @@ public class Utils {
         return room.getName().replaceAll(" ", "_").toLowerCase() + direction;
     }
 
+    public static String toSnakeCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        return input.replaceAll(" ", "_").toLowerCase();
+    }
+
 
     /**
      * Takes a string and outputs it in a box design with equals signs.
