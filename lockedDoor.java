@@ -18,6 +18,8 @@ public class lockedDoor {
     public lockedDoor(String roomPlusDirection, Item key) {
         this.roomPlusDirection = roomPlusDirection;
         this.key = key;
+
+        Game.lockedDoorsMap.put(roomPlusDirection, this);
     }
 
     /**
