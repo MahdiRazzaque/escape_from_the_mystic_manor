@@ -68,8 +68,6 @@ public class Game {
 
         initialiseLockedDoors();
         initialiseLockedDoorsMap();
-
-        inventory.addItem(coin, 5);
     }
 
     /**
@@ -764,6 +762,18 @@ public class Game {
         // Correct answer response
         System.out.println("Purrfect! You've cracked the riddle. " + "\n" +
                 "As promised, I shall give you the key to your escape. Use it wisely, traveller.");
+
+        /**
+         * Checks if adding the vacuum to the player's inventory would exceed the maximum weight limit.
+         * If it does, a message prompts the player to free up space in the inventory and try again.
+         */
+        if (inventory.getWeight() + vacuum.getWeight() > inventory.getMaxWeight()) {
+            // Inform the player that their inventory is too heavy to claim the reward
+            System.out.println("Your burden is too great to claim the reward. Free up some space in your inventory, then try again.");
+            return;
+        }
+
+
         inventory.removeItem(coin, 5); // Remove five coins from the player's inventory
         givePlayerItem(cat, vacuum, 1); // Give the vacuum item to the player
     }
