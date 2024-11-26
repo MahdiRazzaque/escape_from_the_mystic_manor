@@ -33,7 +33,7 @@ public class Game {
     private Item ancientBook, jewelledDagger, magicMirror, coin, holyBread, vacuum; // Items in the game
     private Item pantryKey, chambersKey; // Keys for locked doors
     private Character butler, maid, ghost, cat, securityGuard; // Non-player characters in the game
-    private static HashMap<String, lockedDoor> lockedDoorsMap; // Maps room + direction to a lockedDoor object
+    public static HashMap<String, lockedDoor> lockedDoorsMap; // Maps room + direction to a lockedDoor object
     public static HashMap<String, Item> itemMap; // Map of items
     public static HashMap<String, Character> characterMap; // Map of characters
     private HashMap<String, String> oppositeDirections; // Map of opposite directions for back command
@@ -58,6 +58,7 @@ public class Game {
         //Initialise maps
         itemMap = new HashMap<>();
         characterMap = new HashMap<>();
+        lockedDoorsMap = new HashMap<>();
         initialiseOppositeDirections();
 
         initialiseItems();
@@ -68,7 +69,6 @@ public class Game {
         addItemsToCharacters();
 
         initialiseLockedDoors();
-        initialiseLockedDoorsMap();
     }
 
     /**
@@ -457,7 +457,7 @@ public class Game {
             System.out.println("There are no rooms for you to go back to.");
             return;
         }
-        
+
         goRoom(backCommandStack.pop());
     }
 
@@ -763,10 +763,9 @@ public class Game {
         System.out.println("Purrfect! You've cracked the riddle. " + "\n" +
                 "As promised, I shall give you the key to your escape. Use it wisely, traveller.");
 
-        /**
-         * Checks if adding the vacuum to the player's inventory would exceed the maximum weight limit.
-         * If it does, a message prompts the player to free up space in the inventory and try again.
-         */
+
+        // Checks if adding the vacuum to the player's inventory would exceed the maximum weight limit.
+        // If it does, a message prompts the player to free up space in the inventory and try again.
         if (inventory.getWeight() + vacuum.getWeight() > inventory.getMaxWeight()) {
             // Inform the player that their inventory is too heavy to claim the reward
             System.out.println("Your burden is too great to claim the reward. Free up some space in your inventory, then try again.");
@@ -883,23 +882,6 @@ public class Game {
         lockedDirections = new ArrayList<>();
         lockedDirections.add(kitchenEast);
         lockedDirections.add(bedroomSouth);
-    }
-
-    /**
-     * Initialises the map for locked doors in the game.
-     * <p>
-     * This method creates a map that associates locked door position strings with corresponding lockedDoor objects.
-     * It adds specific locked doors for directions from certain rooms, making it easier to look up locked doors by their position.
-     */
-    private void initialiseLockedDoorsMap() {
-        // Create a map to associate the locked door position strings with the corresponding lockedDoor objects
-        lockedDoorsMap = new HashMap<>();
-
-        // Add the kitchen east direction and the corresponding lockedDoor object to the map
-        lockedDoorsMap.put(Utils.roomDirToSnake(kitchen, "east"), kitchenPantry);
-
-        // Add the master bedroom south direction and the corresponding lockedDoor object to the map
-        lockedDoorsMap.put(Utils.roomDirToSnake(masterBedroom, "south"), bedroomChamber);
     }
 
     /**
