@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Random;
 
 /**
- *  This class is the main class of the "World of Zuul" application.
- *  "World of Zuul" is a very simple, text based adventure game.  Users
+ *  This class is the main class of the "Escape from the Mystic Manor" application.
+ *  "Escape from the Mystic Manor" is a very simple, text based adventure game.  Users
  *  can walk around some scenery. That's all. It should really be extended
  *  to make it more interesting!
  *  <p>
@@ -25,7 +25,7 @@ public class Game {
     private Room currentRoom; // The current room the player is in
     private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber; // Rooms in the game
     private HashSet<Room> visitedRooms; // Set of visited rooms
-    private ArrayList<Room> allUnlockedRooms; // List of all unlocked rooms for use of magic mirror
+    public static ArrayList<Room> allUnlockedRooms; // List of all unlocked rooms for use of magic mirror
     private lockedDoor kitchenPantry, bedroomChamber; // lockedDoor objects
     private ArrayList<String> lockedDirections; // ArrayList to store locked room/directions for goRoom command
     private Inventory inventory; // The player's inventory
@@ -47,23 +47,29 @@ public class Game {
      * and other necessary components. It calls various methods to create and initialise these components.
      */
     public Game() {
+        // ArrayList of all unlocked rooms (all rooms excluding hidden chambers and pantry)
+        allUnlockedRooms = new ArrayList<>();
+
         createRooms();
         parser = new Parser();
         initialiseInventory();
 
+        //Initialise maps
+        itemMap = new HashMap<>();
+        characterMap = new HashMap<>();
+        initialiseOppositeDirections();
+
         initialiseItems();
         addItemsToRooms();
-        initialiseItemMap();
 
         initialiseCharacters();
         addCharactersToRooms();
         addItemsToCharacters();
-        initialiseCharacterMap();
 
         initialiseLockedDoors();
         initialiseLockedDoorsMap();
 
-        initialiseOppositeDirections();
+        inventory.addItem(coin, 5);
     }
 
     /**
@@ -119,16 +125,6 @@ public class Game {
         // Set the starting room
         currentRoom = entranceHall;
 
-        // ArrayList of all unlocked rooms (all rooms excluding hidden chambers and pantry)
-        allUnlockedRooms = new ArrayList<>();
-        allUnlockedRooms.add(entranceHall);
-        allUnlockedRooms.add(library);
-        allUnlockedRooms.add(diningRoom);
-        allUnlockedRooms.add(kitchen);
-        allUnlockedRooms.add(greenhouse);
-        allUnlockedRooms.add(study);
-        allUnlockedRooms.add(masterBedroom);
-
         // Track visited rooms
         visitedRooms = new HashSet<>();
         visitedRooms.add(currentRoom);
@@ -181,6 +177,10 @@ public class Game {
             return false;
         }
 
+        // Triggers characters to randomly move to adjacent rooms with a chance chosen by the player
+        // Only triggered when the player is inputting commands to prevent characters from randomly moving when the player is AFK
+        randomCharacterMovement();
+
         String commandWord = command.getCommandWord();
         switch (commandWord) {
             case "help":
@@ -220,10 +220,6 @@ public class Game {
                 System.out.println("Unknown command: " + commandWord);
                 break;
         }
-
-        // Triggers characters to randomly move to adjacent rooms with a chance chosen by the player
-        // Only triggered when the player is inputting commands to prevent characters from randomly moving when the player is AFK
-        randomCharacterMovement();
 
         // else command not recognised.
         return wantToQuit;
@@ -280,7 +276,7 @@ public class Game {
 
         // Add the opposite direction to the back command stack for backtracking
         backCommandStack.add(oppositeDirections.get(direction));
-        System.out.println(backCommandStack);
+        //System.out.println(backCommandStack);
 
         // Move the player to the next room and display its details
         currentRoom = nextRoom;
@@ -894,34 +890,6 @@ public class Game {
 
         // Add the master bedroom south direction and the corresponding lockedDoor object to the map
         lockedDoorsMap.put(Utils.roomDirToSnake(masterBedroom, "south"), bedroomChamber);
-    }
-
-    /**
-     * Initialises the item map with all the possible items in the game.
-     */
-    private void initialiseItemMap() {
-        itemMap = new HashMap<>();
-        itemMap.put("coin", coin);
-        itemMap.put("ancient_book", ancientBook);
-        itemMap.put("jewelled_dagger", jewelledDagger);
-        itemMap.put("magic_mirror", magicMirror);
-        itemMap.put("holy_bread", holyBread);
-        itemMap.put("pantry_key", pantryKey);
-        itemMap.put("chambers_key", chambersKey);
-        itemMap.put("vacuum", vacuum);
-    }
-
-    /**
-     * Initialises the character map with all the possible characters in the game.
-     */
-    private void initialiseCharacterMap() {
-        characterMap = new HashMap<>();
-        characterMap.put("butler", butler);
-        characterMap.put("maid", maid);
-        characterMap.put("ghost_of_the_former_owner", ghost);
-        characterMap.put("ghost", ghost);
-        characterMap.put("cat", cat);
-        characterMap.put("security_guard", securityGuard);
     }
 
     /**
