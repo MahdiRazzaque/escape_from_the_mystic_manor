@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Stack;
 import java.util.Random;
 
 /**
@@ -36,7 +37,7 @@ public class Game {
     public static HashMap<String, Item> itemMap; // Map of items
     public static HashMap<String, Character> characterMap; // Map of characters
     private HashMap<String, String> oppositeDirections; // Map of opposite directions for back command
-    private ArrayList<String> backCommandStack = new ArrayList<>(); // Stack to track the player's move commands for backtracking
+    private Stack<String> backCommandStack = new Stack<>();
     private boolean mapEnabled, randomCharacterMovement; // Flags for if map is enabled and random character movement
 
 
@@ -273,7 +274,8 @@ public class Game {
         }
 
         // Add the opposite direction to the back command stack for backtracking
-        backCommandStack.add(oppositeDirections.get(direction));
+        //backCommandStack.add(oppositeDirections.get(direction));
+        backCommandStack.push(oppositeDirections.get(direction));
         //System.out.println(backCommandStack);
 
         // Move the player to the next room and display its details
@@ -455,10 +457,8 @@ public class Game {
             System.out.println("There are no rooms for you to go back to.");
             return;
         }
-
-        int lastIndex = backCommandStack.size() - 1;
-        goRoom(backCommandStack.get(lastIndex));
-        backCommandStack.remove(lastIndex);
+        
+        goRoom(backCommandStack.pop());
     }
 
     /**
