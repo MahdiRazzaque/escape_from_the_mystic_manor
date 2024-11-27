@@ -26,8 +26,6 @@ public class Item  {
 
     /**
      * Returns the name of the item.
-     * <p>
-     * This method retrieves the name of the item.
      *
      * @return The name of the item.
      */
@@ -37,8 +35,6 @@ public class Item  {
 
     /**
      * Returns the weight of the item.
-     * <p>
-     * This method retrieves the weight of the item.
      *
      * @return The weight of the item.
      */

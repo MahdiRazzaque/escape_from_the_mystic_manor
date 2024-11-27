@@ -78,7 +78,7 @@ public class Utils {
 
     /**
      * Checks if a specified item exists within a given array.
-     *
+     * <p>
      * This method converts the array to a list and then checks if the specified item
      * is contained within that list.
      *
@@ -93,7 +93,7 @@ public class Utils {
 
     /**
      * Removes all items with a quantity of zero from the inventory.
-     *
+     * <p>
      * This method iterates through the inventory and removes any entries
      * where the item's quantity is zero.
      *
@@ -106,7 +106,7 @@ public class Utils {
 
     /**
      * Creates a delay for a specified number of seconds.
-     *
+     * <p>
      * This method delays the program's execution for the given number of seconds.
      *
      * @param seconds The number of seconds to pause.
