@@ -26,7 +26,8 @@ public class Game {
     private Room currentRoom; // The current room the player is in
     private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber; // Rooms in the game
     private HashSet<Room> visitedRooms; // Set of visited rooms
-    public static ArrayList<Room> allUnlockedRooms; // List of all unlocked rooms for use of magic mirror
+    public static ArrayList<Room> allUnlockedRooms; // List of all unlocked rooms for the use of magic mirror
+    public static ArrayList<Room> allLockedRooms; // List of all locked rooms for the use of the magic mirror
     private lockedDoor kitchenPantry, bedroomChamber; // lockedDoor objects
     private ArrayList<String> lockedDirections; // ArrayList to store locked room/directions for goRoom command
     private Inventory inventory; // The player's inventory
@@ -50,6 +51,7 @@ public class Game {
     public Game() {
         // ArrayList of all unlocked rooms (all rooms excluding hidden chambers and pantry)
         allUnlockedRooms = new ArrayList<>();
+        allLockedRooms = new ArrayList<>();
 
         createRooms();
         parser = new Parser();
@@ -171,6 +173,7 @@ public class Game {
     private boolean processCommand(Command command) {
         boolean wantToQuit = false;
 
+        // If the command word is not found, a message is outputted and the command is ignored.
         if(command.isUnknown()) {
             System.out.println("I don't know what you mean...");
             return false;
@@ -274,7 +277,6 @@ public class Game {
         }
 
         // Add the opposite direction to the back command stack for backtracking
-        //backCommandStack.add(oppositeDirections.get(direction));
         backCommandStack.push(oppositeDirections.get(direction));
         //System.out.println(backCommandStack);
 
@@ -821,6 +823,13 @@ public class Game {
             return;
         }
 
+        // Checks if adding the item(s) to the player's inventory would exceed the maximum weight limit.
+        // If it does, the item is not added to the players inventory and a message is displayed
+        if (inventory.getWeight() + (item.getWeight() * quantity) > inventory.getMaxWeight()) {
+            System.out.println("The player does not have enough inventory space to receive this item");
+            return;
+        }
+
         // Remove the item from the character's inventory
         character.removeItemFromCharacterInventory(item, quantity);
 
@@ -875,8 +884,8 @@ public class Game {
         String bedroomSouth = Utils.roomDirToSnake(masterBedroom, "south");
 
         // Create locked doors with corresponding keys
-        kitchenPantry = new lockedDoor(kitchenEast, pantryKey);
-        bedroomChamber = new lockedDoor(bedroomSouth, chambersKey);
+        kitchenPantry = new lockedDoor(kitchen, "east", pantryKey);
+        bedroomChamber = new lockedDoor(masterBedroom, "south", chambersKey);
 
         // Initialise the list of locked directions
         lockedDirections = new ArrayList<>();

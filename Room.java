@@ -38,10 +38,12 @@ public class Room
         exits = new HashMap<>();
         roomInventory = new nonPlayerInventory(name, this);
 
-        //Add all unlocked rooms to ArrayList for magic mirror
-        if(!name.equalsIgnoreCase("Hidden Chamber") && !name.equalsIgnoreCase("Pantry")) {
-            Game.allUnlockedRooms.add(this);
-        }
+        Game.allUnlockedRooms.add(this);
+
+//        //Add all unlocked rooms to ArrayList for magic mirror
+//        if(!name.equalsIgnoreCase("Hidden Chamber") && !name.equalsIgnoreCase("Pantry")) {
+//            Game.allUnlockedRooms.add(this);
+//        }
     }
     
     /**

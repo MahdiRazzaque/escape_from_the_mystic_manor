@@ -10,16 +10,25 @@ public class lockedDoor {
     private Item key; // Stores the item needed to unlock the door
 
     /**
-     * Constructs a lockedDoor object with the specified room direction and key.
+     * Constructs a lockedDoor object with the specified room and direction, and the key required to unlock it.
+     * <p>
+     * This method converts the room and direction into a snake case string, assigns the key,
+     * and updates the game's locked doors map and list of all locked rooms.
      *
-     * @param roomPlusDirection The room and direction of the door, e.g., "kitchenEast".
+     * @param room The room where the door is located.
+     * @param direction The direction in which the door is situated from the room, e.g., "east".
      * @param key The item required to unlock the door.
      */
-    public lockedDoor(String roomPlusDirection, Item key) {
-        this.roomPlusDirection = roomPlusDirection;
+    public lockedDoor(Room room, String direction, Item key) {
+        // Convert room and direction to a snake_case string for identifying the locked door
+        this.roomPlusDirection = Utils.roomDirToSnake(room, direction);
         this.key = key;
 
+        // Add the locked door to the game's locked doors map
         Game.lockedDoorsMap.put(roomPlusDirection, this);
+
+        Game.allUnlockedRooms.remove(room.getExit(direction));  // Remove the locked room from the allUnlockedRooms list
+        Game.allLockedRooms.add(room.getExit(direction));   // Add the locked room to the allLockedRooms list
     }
 
     /**
