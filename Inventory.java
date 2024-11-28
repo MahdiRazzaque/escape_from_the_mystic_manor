@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
  * @version 24.11.2024
  */
 
-public class Inventory
-{
+public class Inventory {
     private HashMap<Item, Integer> inventory = new HashMap<>(); // Stores items and their quantities
     private Integer weight; // The current total weight of items in the inventory
     private Integer maxWeight; // The maximum weight capacity of the inventory
@@ -53,7 +52,6 @@ public class Inventory
         return maxWeight;
     }
 
-
     /**
      * Adds a specified number of items to the inventory.
      * <p>
@@ -61,7 +59,7 @@ public class Inventory
      * If not, it adds the items to the inventory. If the items are already in the inventory,
      * it increments the quantity; otherwise, it adds the new items. It also displays the
      * updated inventory weight.
-     * <p>
+     *
      * @param item The item to add to the inventory.
      * @param number The number of items to add.
      */
@@ -92,7 +90,7 @@ public class Inventory
      * This method checks if the items are in the inventory and if the quantity to be removed
      * does not exceed the quantity available. If the conditions are met, it removes the items
      * from the inventory and updates the inventory weight. It also removes items with zero quantity.
-     * <p>
+     *
      * @param item The item to remove from the inventory.
      * @param number The number of items to remove.
      */
@@ -123,9 +121,8 @@ public class Inventory
      * Displays the current inventory.
      * <p>
      * This method prints the contents of the inventory, including the name,
-     * quantity, and total weight of each item. If the inventory is empty,
-     * it prints a message indicating that.
-     * <p>
+     * quantity, and total weight of each item. It also displays the total weight.
+     * If the inventory is empty, it prints a message indicating that.
      */
     public void displayInventory() {
         System.out.println("\n**Inventory**");
@@ -161,7 +158,6 @@ public class Inventory
         System.out.println("Items: " + inventoryList);
     }
 
-
     /**
      * Calculates the total weight of the items in the inventory.
      * <p>
@@ -189,7 +185,6 @@ public class Inventory
      * <p>
      * This method calculates the total weight of the items in the inventory and
      * prints it along with the maximum weight capacity.
-     * <p>
      */
     public void displayInventoryWeight() {
         calculateInventoryWeight(); // Calculate the total weight of the items in the inventory
@@ -199,7 +194,7 @@ public class Inventory
     /**
      * Returns the number of items in the inventory. If the item is not found,
      * it defaults to returning 0.
-     * <p>
+     *
      * @param item The item whose quantity is to be retrieved.
      * @return The quantity of the item in the inventory.
      */
@@ -210,20 +205,21 @@ public class Inventory
     /**
      * Drops a specified quantity of an item in the current room.
      * <p>
-     * This method checks if the item is a key and if dropping it in the current room would lock the player out of the room,
-     * preventing the item from being dropped in that case. Otherwise, it adds the item to the room's inventory,
-     * removes it from the player's inventory, and displays a confirmation message.
-     * <p>
+     * This method checks if the item is in the inventory and if dropping it in the current room would lock the player
+     * out of the room, preventing the item from being dropped in that case. Otherwise, it adds the item to the
+     * room's inventory, removes it from the player's inventory, and displays a confirmation message.
+     *
      * @param currentRoom The current room where the item is to be dropped.
      * @param item The item to be dropped.
      * @param quantity The quantity of the item to drop.
      */
     public void dropItem(Room currentRoom, Item item, int quantity) {
         // Prevent dropping keys in specific rooms to avoid the player being locked out of rooms
-        if ((currentRoom.getName().equals("Hidden Chamber") && item.getName().equals("chambers key"))
-                || (currentRoom.getName().equals("Pantry") && item.getName().equals("pantry key"))) {
-            System.out.println("If you drop the key here, the door will lock behind you, sealing its secrets forever. I can't let you do that.");
-            return;
+        for(lockedDoor door : Game.lockedDoorObjects) {
+            if (Game.allLockedRooms.contains(currentRoom) && door.getKey().equals(item)) {
+                System.out.println("If you drop the key here, the door will lock behind you, sealing its secrets forever. I can't let you do that.");
+                return;
+            }
         }
         currentRoom.addItemToRoomInventory(item, quantity); // Add the item to the room's inventory
         removeItem(item, quantity); // Remove the item from the player's inventory
