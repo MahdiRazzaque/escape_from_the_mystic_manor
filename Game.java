@@ -50,6 +50,8 @@ public class Game {
 
     private boolean mapEnabled, randomCharacterMovement; // Flags for if map is enabled and random character movement
 
+    private boolean riddleAnswered = false; // Flag to check if the cat's riddle has been answered;
+
     /**
      * Constructor for the Game class.
      * <p>
@@ -748,6 +750,11 @@ public class Game {
             return;
         }
 
+        if(riddleAnswered) {
+            System.out.println("The cat's riddle has already been deciphered.");
+            return;
+        }
+
         String catRoomName = cat.getCurrentRoom().getName(); // Get the name of the room where the cat is located
 
         // Check if the player is in the same room as the cat
@@ -796,6 +803,7 @@ public class Game {
 
         inventory.removeItem(coin, 5); // Remove five coins from the player's inventory
         givePlayerItem(cat, vacuum, 1); // Give the vacuum item to the player
+        riddleAnswered = true; // Set the flag to true to indicate that the riddle has been answered
     }
 
     /**
