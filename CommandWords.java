@@ -8,7 +8,7 @@ import java.util.HashMap;
  * It is used to recognise commands as they are typed in.
  * <p>
  * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
- * @version 24.11.2024
+ * @version 28.11.2024
  */
 
 public class CommandWords {
@@ -51,7 +51,7 @@ public class CommandWords {
     }
 
     /**
-     * Print all valid commands and their descriptions to System.out.
+     * Print all valid commands and their descriptions
      */
     public void showAll() {
         for (String command : commandDescriptions.keySet()) {

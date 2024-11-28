@@ -7,18 +7,18 @@ import java.util.Random;
 /**
  *  This class is the main class of the "Escape from the Mystic Manor" application.
  *  "Escape from the Mystic Manor" is a very simple, text based adventure game.  Users
- *  can walk around some scenery. That's all. It should really be extended
- *  to make it more interesting!
+ *  can walk around a mansion, interact with characters, pick up items, and solve puzzles.
  *  <p>
  *  To play this game, create an instance of this class and call the "play"
  *  method.
  *  <p>
- *  This main class creates and initialises all the others: it creates all
- *  rooms, creates the parser and starts the game.  It also evaluates and
- *  executes the commands that the parser returns.
+ *  This main class creates and initialises all the others: it creates the
+ *  rooms, locked rooms, items, characters, inventory and creates the parser.
+ *  It also adds items to rooms, adds characters to rooms, and adds items to characters.
+ *  It then starts the game and processes the commands entered by the player.
  *
  * @author  Michael Kölling, David J. Barnes and Mahdi Razzaque
- * @version 24.11.2024
+ * @version 28.11.2024
  */
 
 public class Game {
@@ -31,6 +31,7 @@ public class Game {
     public static ArrayList<Room> allLockedRooms; // List of all locked rooms for the use of the magic mirror
 
     private lockedDoor kitchenPantry, bedroomChamber; // lockedDoor objects
+    public static ArrayList<lockedDoor> lockedDoorObjects; // ArrayList of lockedDoor objects
     private ArrayList<String> lockedDirections; // ArrayList to store locked room/directions for goRoom command
 
     private Inventory inventory; // The player's inventory
@@ -49,7 +50,6 @@ public class Game {
 
     private boolean mapEnabled, randomCharacterMovement; // Flags for if map is enabled and random character movement
 
-
     /**
      * Constructor for the Game class.
      * <p>
@@ -60,6 +60,7 @@ public class Game {
         // ArrayList of all unlocked rooms (all rooms excluding hidden chambers and pantry)
         allUnlockedRooms = new ArrayList<>();
         allLockedRooms = new ArrayList<>();
+        lockedDoorObjects = new ArrayList<>();
 
         createRooms();
         parser = new Parser();
@@ -175,6 +176,7 @@ public class Game {
 
     /**
      * Given a command, process (that is: execute) the command.
+     *
      * @param command The command to be processed.
      * @return true If the command ends the game, false otherwise.
      */
@@ -236,7 +238,6 @@ public class Game {
     }
 
     // Implementations of user commands:
-
     /**
      * Print out some help information.
      * Here we print some stupid, cryptic message and a list of the
@@ -250,9 +251,8 @@ public class Game {
         parser.showCommands();
     }
 
-
     /**
-     * Try to in to one direction. If there is an exit, enter the new
+     * Try to go in to one direction. If there is an exit, enter the new
      * room, otherwise print an error message.
      */
     private void goRoom(Command command) {
@@ -298,6 +298,7 @@ public class Game {
      * Moves the player in the specified direction. If there is an exit in the given direction,
      * the player enters the new room and the room's description is displayed.
      * This method is used for the back command
+     *
      * @param direction The direction in which the player wants to move (e.g., "north", "east").
      */
     private void goRoom(String direction) {
@@ -319,6 +320,7 @@ public class Game {
     /**
      * "Quit" was entered. Check the rest of the command to see
      * whether we really quit the game.
+     *
      * @return true, if this command quits the game, false otherwise.
      */
     private boolean quit(Command command) {
@@ -337,7 +339,7 @@ public class Game {
      * This method handles various commands related to the inventory. It provides options to display the inventory,
      * drop an item from the inventory, or pick up an item from the current room. If no second word is provided in
      * the command, it displays the available inventory commands.
-     * <p>
+     *
      * @param command The command object containing the user's input.
      */
     private void processInventoryCommand(Command command) {
@@ -383,7 +385,7 @@ public class Game {
     /**
      * Removes the item from the player's inventory and adds it to the room's inventory.
      * If the item is not found or the specified quantity is invalid, an appropriate message is displayed.
-     * <p>
+     *
      * @param command The drop command to be processed.
      */
     private void processDropItem(Command command) {
@@ -422,7 +424,7 @@ public class Game {
      * <p>
      * Removes the item from the room's inventory and adds it to the player's inventory.
      * If the item is not found or the specified quantity is invalid, an appropriate message is displayed.
-     * <p>
+     *
      * @param command The pickup command to be processed.
      */
     private void processPickupItem(Command command) {
@@ -475,7 +477,7 @@ public class Game {
      * This method handles the command to interact with a specified character in the current room.
      * If no second word is provided in the command, it prompts the player to specify the character.
      * If the character is not found, it prompts the player again to specify the character.
-     * <p>
+     *
      * @param command The interact command to be processed.
      */
     private void processInteractCommand(Command command) {
@@ -534,7 +536,7 @@ public class Game {
      * This method handles the command to use a specified item from the inventory. If no second word is provided,
      * it prompts the player to specify the item. If the item is not found or the player does not have the item,
      * an appropriate message is displayed.
-     * <p>
+     *
      * @param command The use command to be processed.
      */
     private void processUseCommand(Command command) {
@@ -726,7 +728,7 @@ public class Game {
      * This method handles the command to answer the cat's riddle. If the player has not interacted with the cat,
      * or if the player is not in the same room as the cat, or if the player does not have enough coins,
      * an appropriate message is displayed. If the answer is correct, the player is rewarded.
-     * <p>
+     *
      * @param command The answer command to be processed.
      */
     private void processAnswerCommand(Command command) {
@@ -798,6 +800,10 @@ public class Game {
             System.out.println("Map is disabled.");
             return;
         }
+        // Initially the player had to explore all rooms to access the map, but then I realised this would not work, as
+        // the player would not be able to access all rooms without getting the keys from the cat and ghost, but at that
+        // point the player would not need the map. So I decided to allow the player to enable/disable the map if they
+        // want to.
         /*
         if(visitedRooms.size() != 9) {
             System.out.println("To unlock the secrets of the map, you must first journey through every chamber.");
@@ -813,13 +819,13 @@ public class Game {
      * This method checks if the character has enough of the specified item to give to the player.
      * If the character has fewer items than the specified quantity, an appropriate message is displayed.
      * The item is then removed from the character's inventory and added to the player's inventory.
-     * <p>
+     *
      * @param character The character giving the item.
      * @param item The item to be given to the player.
      * @param quantity The quantity of the item to be transferred.
      */
     public void givePlayerItem(Character character, Item item, Integer quantity) {
-        // Check if the character has more items than the specified quantity
+        // Check if the character has fewer items than the specified quantity
         if (character.numberOfItemInCharacterInventory(item) < quantity) {
             System.out.println("Character cannot give more items than they have");
             return;
@@ -884,7 +890,7 @@ public class Game {
      * This method creates lockedDoors within the game. Each lockedDoor takes a room and a direction to lock.
      * The room name and direction is concatenated to store the position of the locked door.
      * When moving rooms, the game checks to see if the current room the player is in,
-     * and the direction they're trying to move in is locked. They m
+     * and the direction they're trying to move in is locked.
      */
     private void initialiseLockedDoors() {
         // Convert room and direction to a string format used for identifying locked doors

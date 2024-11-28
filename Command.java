@@ -14,7 +14,7 @@
  * If the command had only one word, then the second word, third and fourth word is <null>.
  * 
  * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
- * @version 24.11.2024
+ * @version 28.11.2024
  */
 
 public class Command
@@ -27,8 +27,9 @@ public class Command
     /**
      * Create a command object. First, second, and third words must be supplied, but
      * any of them can be null.
+     *
      * @param firstWord The first word of the command. Null if the command was not recognised.
-     * @param secondWord The second word of the command.
+     * @param secondWord The second word of the command, typically used for subcommands.
      * @param thirdWord The third word of the command.
      * @param fourthWord The fourth word of the command, typically used for quantities.
      */
@@ -42,6 +43,7 @@ public class Command
     /**
      * Return the command word (the first word) of this command. If the
      * command was not understood, the result is null.
+     *
      * @return The command word.
      */
     public String getCommandWord()

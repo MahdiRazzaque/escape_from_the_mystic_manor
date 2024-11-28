@@ -12,14 +12,13 @@ import java.util.ArrayList;
  * The inventory is stored as a HashMap with items as keys and their quantities as values.
  *
  * @author Mahdi Razzaque
- * @version 24.11.2024
+ * @version 28.11.2024
  */
 
 public class nonPlayerInventory {
     private HashMap<Item, Integer> inventory = new HashMap<>();
     private Room room;
     private String name;
-
 
     /**
      * Constructor for objects of class nonPlayerInventory for rooms/characters.
@@ -81,12 +80,12 @@ public class nonPlayerInventory {
      * <p>
      * This method prints the inventory of the specified room or character. If the inventory is empty,
      * it prints a message indicating that the inventory is empty.
-     * <p>
-     * @param roomOrCharacter Indicates whether to display the inventory for a room or a character.
+     *
+     * @param type Indicates whether to display the inventory for a room or a character.
      */
-    public void displayInventory(String roomOrCharacter) {
+    public void displayInventory(String type) {
         String inventoryList;
-        switch (roomOrCharacter) {
+        switch (type) {
             case "character":
                 System.out.println("\n**Inventory of " + name + " **");
 
@@ -122,12 +121,12 @@ public class nonPlayerInventory {
      * <p>
      * This method prints a list of item names formatted for selection (lowercase with spaces replaced with underscores).
      * If the inventory is empty, it prints a message indicating that.
-     * <p>
-     * @param roomOrCharacter Indicates whether to display the inventory for a room or a character.
+     *
+     * @param type Indicates whether to display the inventory for a room or a character.
      */
-    public void displayInventorySelection(String roomOrCharacter) {
+    public void displayInventorySelection(String type) {
         String inventoryList;
-        switch (roomOrCharacter) {
+        switch (type) {
             case "character":
                 if (inventory.isEmpty()) {
                     System.out.printf("Inventory of %s: None\n", name);
@@ -169,7 +168,7 @@ public class nonPlayerInventory {
 
     /**
      * This method retrieves all the items in the inventory and returns them as an ArrayList.
-     * <p>
+     *
      * @return An ArrayList containing all the items in the inventory.
      */
     public ArrayList<Item> getItems() {
@@ -193,6 +192,7 @@ public class nonPlayerInventory {
      * <p>
      * This is used to move all the items from a character inventory
      * into the room inventory upon the character's death
+     *
      * @param itemsToAdd A HashMap containing items and their quantities to be added to the inventory.
      */
     public void addAll(HashMap<Item, Integer> itemsToAdd) {

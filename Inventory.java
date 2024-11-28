@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * as values.
  *
  * @author Mahdi Razzaque
- * @version 24.11.2024
+ * @version 28.11.2024
  */
 
 public class Inventory {
@@ -26,7 +26,7 @@ public class Inventory {
      * <p>
      * Initialises the inventory with a given maximum weight and sets the current
      * weight to zero.
-     * <p>
+     *
      * @param maxWeight The maximum weight capacity of the inventory.
      */
     public Inventory(Integer maxWeight) {
@@ -164,7 +164,7 @@ public class Inventory {
      * This method iterates through the items in the inventory and calculates the
      * total weight based on the quantity and weight of each item. If the inventory
      * is empty, the total weight is set to zero.
-     * <p>
+     *
      * @return The total weight of the items in the inventory.
      */
     public Integer calculateInventoryWeight() {
@@ -176,7 +176,6 @@ public class Inventory {
                 weight += item.getWeight() * inventory.get(item); // Add the weight of the item multiplied by its quantity
             }
         }
-
         return weight;
     }
 
@@ -232,7 +231,7 @@ public class Inventory {
      * This method checks if adding the items will exceed the maximum weight capacity of the inventory.
      * If the weight limit will not be met, it removes the items from the room's inventory and adds them to the
      * player's inventory, then displays a confirmation message.
-     * <p>
+     *
      * @param currentRoom The current room where the item is being picked up from.
      * @param item The item to be picked up.
      * @param quantity The quantity of the item to pick up.
@@ -247,5 +246,4 @@ public class Inventory {
         addItem(item, quantity); // Add the item to the player's inventory
         System.out.println("You have picked up " + quantity + " " + item.getName() + (quantity > 1 ? "s" : "")); // Display confirmation message
     }
-
 }

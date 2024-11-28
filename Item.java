@@ -1,10 +1,12 @@
+import java.util.HashMap;
+
 /**
  * This class is used to create item objects.
  * Items are objects the characters can find and use throughout the game.
  * Each object will have a name and a weight.
  *
  * @author Mahdi Razzaque
- * @version 21.11.24
+ * @version 28.11.24
  */
 public class Item  {
     private String itemName; // Holds the name of the item

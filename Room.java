@@ -6,16 +6,13 @@ import java.util.stream.Collectors;
 
 /**
  * Class Room - a room in an adventure game.
- *
- * This class is part of the "Escape from the Mystic Manor" application. 
- * "Escape from the Mystic Manor" is a very simple, text based adventure game.  
- *
+ * <p>
  * A "Room" represents one location in the scenery of the game.  It is 
  * connected to other rooms via exits.  For each existing exit, the room 
  * stores a reference to the neighboring room.
  * 
  * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
- * @version 24.11.2024
+ * @version 28.11.2024
  */
 
 public class Room 
@@ -38,21 +35,16 @@ public class Room
         exits = new HashMap<>();
         roomInventory = new nonPlayerInventory(name, this);
 
-        Game.allUnlockedRooms.add(this);
-
-//        //Add all unlocked rooms to ArrayList for magic mirror
-//        if(!name.equalsIgnoreCase("Hidden Chamber") && !name.equalsIgnoreCase("Pantry")) {
-//            Game.allUnlockedRooms.add(this);
-//        }
+        Game.allUnlockedRooms.add(this); // Add the room to the list of unlocked rooms
     }
     
     /**
      * Define an exit from this room.
+     *
      * @param direction The direction of the exit.
      * @param neighbor  The room to which the exit leads.
      */
-    public void setExit(String direction, Room neighbor) 
-    {
+    public void setExit(String direction, Room neighbor) {
         exits.put(direction, neighbor);
     }
 
@@ -80,8 +72,7 @@ public class Room
      * @return The short description of the room
      * (the one that was defined in the constructor).
      */
-    public String getShortDescription()
-    {
+    public String getShortDescription() {
         return description;
     }
 
@@ -91,8 +82,7 @@ public class Room
      *     Exits: north west
      * @return A long description of this room
      */
-    public String getLongDescription()
-    {
+    public String getLongDescription() {
         return "You are " + description + ".\n" + getExitString();
     }
 
@@ -101,8 +91,7 @@ public class Room
      * "Exits: north west".
      * @return Details of the room's exits.
      */
-    private String getExitString()
-    {
+    private String getExitString() {
         String returnString = "Exits:";
         Set<String> keys = exits.keySet();
         for(String exit : keys) {
@@ -129,8 +118,7 @@ public class Room
      * @param direction The exit's direction.
      * @return The room in the given direction.
      */
-    public Room getExit(String direction) 
-    {
+    public Room getExit(String direction) {
         return exits.get(direction);
     }
 
@@ -159,13 +147,12 @@ public class Room
     }
 
     /**
-     * Outputs a string showing which characters are currently in the given room.
+     * Outputs a string for selection showing which characters are currently in the given room.
      * <p>
      * This method checks if the room has any characters. If no characters are present,
      * it prints "Characters: None". Otherwise, it prints a list of the names of the characters
      * currently in the room, formatted for selection by converting the names to lowercase
      * and replacing spaces with underscores.
-     * <p>
      */
     public void displayCharacterSelection() {
         if (characters.isEmpty()) { // Check if there are no characters in the room
@@ -186,7 +173,6 @@ public class Room
     public void addCharacter(Character character) {
         characters.add(character);
     }
-
 
     /**
      * Removes the specified character from room
@@ -209,6 +195,7 @@ public class Room
  
     /**
      * Adds an item to the room inventory.
+     *
      * @param item The item to be added.
      * @param quantity The quantity of the item to be added.
      */
@@ -218,6 +205,7 @@ public class Room
     
     /**
      * Removes an item from the room inventory.
+     *
      * @param item The item to be removed.
      * @param quantity The quantity of the item to be removed.
      */
@@ -243,6 +231,7 @@ public class Room
     
     /**
      * Checks the number of a specific item in the room inventory.
+     *
      * @param item The item to check.
      * @return The number of the specified item in the room inventory.
      */
@@ -259,6 +248,7 @@ public class Room
     
     /**
      * Adds all items from another inventory to the room inventory.
+     *
      * @param itemsToAdd The items to be added to the room inventory.
      */
     public void addAllItemsToRoomInventory(HashMap<Item, Integer> itemsToAdd) {
@@ -270,7 +260,6 @@ public class Room
      * <p>
      * This method prints the name of the room, the long description of the room,
      * the room's inventory, and the characters present in the room.
-     * <p>
      */
     public void displayRoomDetails() {
         displayName(); // Print the name of the room

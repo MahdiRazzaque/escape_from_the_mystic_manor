@@ -6,13 +6,12 @@ import java.util.Random;
  * Class Character - represents a character in an adventure game.
  * <p>
  * A "Character" represents a player or non-player character within the game, 
- * possessing attributes such as health, passiveness, inventory, and location within the map.
- * <p>
- * @author Mahdi
- * @version 17.11.2024
+ * with attributes such as health, passiveness, inventory, and location within the map.
+ *
+ * @author Mahdi Razzaque
+ * @version 28.11.2024
  */
-public class Character
-{
+public class Character {
     private String name;
     private Boolean passive;
     private Integer currentHealth;
@@ -24,7 +23,8 @@ public class Character
     private Integer randomMovementChance;
 
     /**
-     * Constructs a Character object with the specified name, passivity status, maximum health, and current room.
+     * Constructs a Character object with the specified name, passivity, maximum health, and current room.
+     *
      * @param name The name of the character.
      * @param passive Indicates whether the character is passive.
      * @param maxHealth The maximum health value of the character.
@@ -35,14 +35,16 @@ public class Character
         this.passive = passive;
         currentHealth = this.maxHealth = maxHealth;
         this.currentRoom = currentRoom;
-        characterInventory = new nonPlayerInventory(name, currentRoom);
+        characterInventory = new nonPlayerInventory(name, currentRoom); // Creates an inventory for the character
         interactedWith = false;
 
-        Game.characterMap.put(Utils.toSnakeCase(name), this);
+        //Game.characterMap.put(Utils.toSnakeCase(name), this); //Add the character to the character map
+        Game.characterMap.put(Utils.toSnakeCase(name), this); //Add the character to the character map
     }
 
     /**
      * Returns the name of the character.
+     *
      * @return The name of the character.
      */
     public String getName() {
@@ -51,6 +53,7 @@ public class Character
     
     /**
      * Returns whether the character is passive or not.
+     *
      * @return true if the character is passive; false otherwise.
      */
     public Boolean getPassive() {
@@ -59,6 +62,7 @@ public class Character
     
     /**
      * Returns the current health of the character.
+     *
      * @return The current health of the character.
      */
     public Integer getHealth() {
@@ -66,16 +70,13 @@ public class Character
     }
 
     /**
-     * Checks if the character has been interacted with.
-     * <p>
-     * This method returns if the character has been interacted with
+     * Returns if the character has been interacted with
      *
      * @return true if the character has been interacted with; false otherwise.
      */
     public boolean getInteractedWith() {
         return interactedWith;
     }
-
 
     /**
      * This method returns the room where the character is currently located.
@@ -88,6 +89,7 @@ public class Character
 
     /**
      * Adds the provided health value to the current health of the character.
+     *
      * @param health The amount of health to add.
      */
     public void addHealth(Integer health) {
@@ -101,6 +103,7 @@ public class Character
     /**
      * Removes the provided health value from the current health of the character.
      * If the health drops to zero or below, the character's inventory is transferred to the room's inventory.
+     *
      * @param health The amount of health to remove.
      */
     public void removeHealth(Integer health) {
@@ -125,6 +128,7 @@ public class Character
     
     /**
      * Adds a specified quantity of an item to the character's inventory.
+     *
      * @param item The item to be added.
      * @param quantity The quantity of the item to be added.
      */
@@ -134,6 +138,7 @@ public class Character
     
     /**
      * Removes a specified quantity of an item from the character's inventory.
+     *
      * @param item The item to be removed.
      * @param quantity The quantity of the item to be removed.
      */
@@ -149,7 +154,8 @@ public class Character
     }
     
     /**
-     * Checks the number of a specific item in the character's inventory.
+     * Returns the number of a specific item in the character's inventory.
+     *
      * @param item The item to check.
      * @return The number of the specified item in the character's inventory.
      */
@@ -166,6 +172,7 @@ public class Character
     
     /**
      * Adds all items from another inventory to the character's inventory.
+     *
      * @param itemsToAdd The items to be added to the character's inventory.
      */
     public void addAllItemsToCharacterInventory(HashMap<Item, Integer> itemsToAdd) {
@@ -176,8 +183,7 @@ public class Character
      * Initiates interaction with the character.
      * <p>
      * This method triggers a dialog with the character and sets the interaction status to true.
-     * The dialog is managed by the `Dialog` class, which keeps track of the current dialog number for the character.
-     * Each interaction progresses the dialog to the next line, looping back to the beginning after reaching the end.
+     * The dialog is managed by the `Dialog` class, which displays the character's dialog, once interacted with.
      */
     public void interact() {
         Dialog.getDialog(name); // Trigger a dialog with the character
@@ -195,10 +201,7 @@ public class Character
         Room nextRoom = currentRoom.getExit(direction); // Retrieve the room in the specified direction
         currentRoom = nextRoom; // Update the character's current room to the new room
         currentRoom.addCharacter(this);
-
-
     }
-
 
     /**
      * This method returns a HashMap containing the exits of the room where the
@@ -209,7 +212,6 @@ public class Character
     public HashMap<String, Room> getRoomExits() {
         return currentRoom.getExits();
     }
-
 
     /**
      * This method sets whether the character will move randomly and the
@@ -223,15 +225,13 @@ public class Character
         this.randomMovementChance = randomMovementChance; // Set the random movement chance
     }
 
-
     /**
      * Moves the character to a random room based on the specified random movement chance.
      * <p>
      * This method selects a random exit from the current room's exits and moves the character
      * to the corresponding room if the random movement conditions are met.
-     * The conditions include the character being allowed to move randomly, the random chance
+     * The conditions include if random character movement is enabled, the random chance
      * being met, and the character having been interacted with.
-     * <p>
      */
     public void randomRoomMovement() {
         if (!randomCharacterMovement) return; // Check if random movement is enabled

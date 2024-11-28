@@ -4,14 +4,16 @@ import java.util.HashMap;
 /**
  * The Dialog class manages the dialog interactions for various characters in the game.
  * <p>
- * This class holds the dialogs for different characters and the current dialog number for each character.
- * It provides a method to get the dialog for a given character and cycle through the dialog options.
+ * This class holds the dialogs for different characters.
+ * It provides a method to retrieve and display the dialogues for a given character.
+ *
+ * @author Mahdi Razzaque
+ * @version 28.11.2024
  */
-public class Dialog {
 
+public class Dialog {
     public static HashMap<String, ArrayList<String>> dialog = new HashMap<>(); // Stores the dialog for each character
 
-    // Static block to initialise the dialogs for the characters
     static {
         // Initialising dialog for Butler
         ArrayList<String> butlerDialog = new ArrayList<>();
@@ -38,7 +40,7 @@ public class Dialog {
         ArrayList<String> catDialog = new ArrayList<>();
         catDialog.add("Meow. Welcome to the library. I have a riddle for you to solve.");
         catDialog.add("Solve my riddle and fetch me 5 coins, and I will give you the key weapon to defeat the ghost.");
-        catDialog.add("I can remove dust and crumbs with ease, though I don’t use hands, water, or a breeze. What am I?");
+        catDialog.add("I can remove dust and crumbs with ease, though I don’t use hands or water. What am I?");
         catDialog.add("To solve the riddle, use the command 'answer [your answer]'. " +
                 "Ensure you possess no less than five coins to proceed.");
         dialog.put("Cat", catDialog);
@@ -56,7 +58,7 @@ public class Dialog {
      * <p>
      * This method retrieves the current dialogue for the specified character and increments the dialogue number.
      * If the end of the dialogue list is reached, it resets the dialogue number to 0.
-     * <p>
+     *
      * @param character The name of the character whose dialogue is to be retrieved.
      */
     public static void getDialog(String character) {

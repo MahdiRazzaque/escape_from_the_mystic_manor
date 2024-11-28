@@ -1,9 +1,14 @@
+import java.util.HashMap;
+
 /**
  * The lockedDoor class represents a door that requires a key to unlock.
  * <p>
  * Each lockedDoor object has a roomPlusDirection string which indicates the specific door that is locked.
  * For example, roomPlusDirection may be "kitchenEast", representing the door between the kitchen and the room to the east of it.
  * The key variable stores the item object needed to unlock the door.
+ *
+ * @author Mahdi Razzaque
+ * @version 28.11.24
  */
 public class lockedDoor {
     private String roomPlusDirection; // Represents which door is locked
@@ -12,8 +17,8 @@ public class lockedDoor {
     /**
      * Constructs a lockedDoor object with the specified room and direction, and the key required to unlock it.
      * <p>
-     * This method converts the room and direction into a snake case string, assigns the key,
-     * and updates the game's locked doors map and list of all locked rooms.
+     * This method converts the room and direction into a concatenated snake case string, assigns the key,
+     * and updates the game's locked doors map, list of all locked rooms and a list of all lockedDoor objects.
      *
      * @param room The room where the door is located.
      * @param direction The direction in which the door is situated from the room, e.g., "east".
@@ -24,8 +29,9 @@ public class lockedDoor {
         this.roomPlusDirection = Utils.roomDirToSnake(room, direction);
         this.key = key;
 
-        // Add the locked door to the game's locked doors map
-        Game.lockedDoorsMap.put(roomPlusDirection, this);
+        Game.lockedDoorsMap.put(roomPlusDirection, this); // Add the locked door to the game's locked doors map
+
+        Game.lockedDoorObjects.add(this); // Add the locked door to the list of locked doors
 
         Game.allUnlockedRooms.remove(room.getExit(direction));  // Remove the locked room from the allUnlockedRooms list
         Game.allLockedRooms.add(room.getExit(direction));   // Add the locked room to the allLockedRooms list

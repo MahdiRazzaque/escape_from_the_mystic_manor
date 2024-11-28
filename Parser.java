@@ -1,9 +1,6 @@
 import java.util.Scanner;
 
 /**
- * This class is part of the "Escape from the Mystic Manor" application. 
- * "Escape from the Mystic Manor" is a very simple, text based adventure game.  
- * <p>
  * This parser reads user input and tries to interpret it as an "Adventure"
  * command. Every time it is called it reads a line from the terminal and
  * tries to interpret the line as a two word command. It returns the command
@@ -14,7 +11,7 @@ import java.util.Scanner;
  * returns a command object that is marked as an unknown command.
  * 
  * @author  Michael Kölling, David J. Barnes, Mahdi Razzaque
- * @version 2016.02.29
+ * @version 28.11.2024
  */
 public class Parser {
     private CommandWords commands;  // holds all valid command words
