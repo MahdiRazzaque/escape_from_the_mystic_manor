@@ -395,7 +395,7 @@ public class Game {
         // Check if the item exists in the item map
         if (!itemMap.containsKey(itemName)) {
             System.out.println("Item not found");
-            currentRoom.displayRoomInventory();
+            inventory.displayInventorySelection();
             return;
         }
 
@@ -410,7 +410,7 @@ public class Game {
         }
 
         // Check if the player has enough of the item to drop the specified quantity
-        if (inventory.numberOfItem(itemToBeDropped) < quantity) {
+        if (inventory.numberOfItem(itemToBeDropped) < quantity || quantity == 0) {
             System.out.println("You do not have enough " + itemName.replace("_", " ") + "s to drop");
             return;
         }
@@ -450,7 +450,7 @@ public class Game {
         }
 
         // Check if there is enough of the item in the room
-        if (currentRoom.numberOfItemInRoomInventory(itemToBePickedUp) < quantity) {
+        if (currentRoom.numberOfItemInRoomInventory(itemToBePickedUp) < quantity || quantity == 0) {
             System.out.println("Insufficient quantity in the room.");
             return;
         }
@@ -499,8 +499,18 @@ public class Game {
             return;
         }
 
+        Character character = characterMap.get(characterSelected);
+
+        String characterRoomName = character.getCurrentRoom().getName(); // Get the name of the room where the cat is located
+
+        // Check if the player is in the same room as the character
+        if (!currentRoom.getName().equals(characterRoomName)) {
+            System.out.println("You can only converse with those who share your current space.");
+            return;
+        }
+
         // Interact with the specified character
-        characterMap.get(characterSelected).interact();
+        character.interact();
     }
 
     /**
@@ -692,7 +702,7 @@ public class Game {
 
                 // Special case for passive characters
                 if (character.getPassive()) {
-                    currentRoom.removeCharacter(character);
+                    character.kill();
                     System.out.printf(
                             "A wave of sorrow washes over the room as you realise that the %s is gone forever.\n",
                             character.getName());
@@ -710,7 +720,7 @@ public class Game {
                     Utils.waitSeconds(2);
                     System.out.println("The path ahead is now clear. Farewell...");
                     System.out.println("With a final, sorrowful glance, the ghost drops the chamber's key, fading away into the ether.");
-                    currentRoom.removeCharacter(character);
+                    ghost.kill();
                     return;
                 }
                 break;
@@ -783,7 +793,6 @@ public class Game {
             System.out.println("Your burden is too great to claim the reward. Free up some space in your inventory, then try again.");
             return;
         }
-
 
         inventory.removeItem(coin, 5); // Remove five coins from the player's inventory
         givePlayerItem(cat, vacuum, 1); // Give the vacuum item to the player

@@ -176,12 +176,10 @@ public class Room
 
     /**
      * Removes the specified character from room
-     * and transfers the character's inventory to the room's inventory.
      *
      * @param character The character to be removed.
      */
     public void removeCharacter(Character character) {
-        character.transferInventoryToRoom(); // Transfer the character's inventory to the room's inventory
         characters.remove(character); // Remove the character from the list of characters in the room
     }
 
