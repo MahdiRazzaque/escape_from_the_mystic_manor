@@ -257,7 +257,7 @@ public class Character {
         int randomChance = random.nextInt(randomMovementChance); // Generate a random chance
         if (randomChance == randomMovementChance / 2) { // Check if movement conditions are met
             goRoom(exits.get(randomIndex)); // Move the character to the random exit room
-            System.out.println(name + " has moved to " + currentRoom.getName()); // Print movement confirmation
+            //System.out.println(name + " has moved to " + currentRoom.getName()); // Print movement confirmation
         }
     }
 }
