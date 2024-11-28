@@ -110,9 +110,23 @@ public class Character {
         if ((currentHealth - health) == 0) {
             currentHealth = 0;
             transferInventoryToRoom();
+            currentRoom.removeCharacter(this);
         } else {
             currentHealth -= health;
         }
+    }
+    /**
+     * Sets the current health of the character to zero.
+     * <p>
+     * This method sets the current health of the character to zero and transfers the character's inventory to the room's inventory.
+     */
+    public void kill() {
+        if(currentHealth == 0) return;
+
+        currentHealth = 0;
+        transferInventoryToRoom();
+        currentRoom.removeCharacter(this);
+        currentRoom = null;
     }
   
     /**
@@ -197,7 +211,7 @@ public class Character {
      * @param direction The direction in which to move the character.
      */
     public void goRoom(String direction) {
-        currentRoom.removeCharacter(this);
+        currentRoom.removeCharacter(this); // Removes the character from the room
         Room nextRoom = currentRoom.getExit(direction); // Retrieve the room in the specified direction
         currentRoom = nextRoom; // Update the character's current room to the new room
         currentRoom.addCharacter(this);
@@ -236,13 +250,14 @@ public class Character {
     public void randomRoomMovement() {
         if (!randomCharacterMovement) return; // Check if random movement is enabled
         if (!interactedWith) return; // Check if the character has been interacted with
+        if(currentRoom == null) return; // Check if the character is in a room
         ArrayList<String> exits = new ArrayList<>(getRoomExits().keySet()); // Get the list of room exits
         Random random = new Random();
         int randomIndex = random.nextInt(exits.size()); // Select a random index for the exits
         int randomChance = random.nextInt(randomMovementChance); // Generate a random chance
         if (randomChance == randomMovementChance / 2) { // Check if movement conditions are met
             goRoom(exits.get(randomIndex)); // Move the character to the random exit room
-            //System.out.println(name + " has moved to " + currentRoom.getName()); // Print movement confirmation
+            System.out.println(name + " has moved to " + currentRoom.getName()); // Print movement confirmation
         }
     }
 }
