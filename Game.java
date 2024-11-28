@@ -23,22 +23,30 @@ import java.util.Random;
 
 public class Game {
     private Parser parser; // The parser to handle user inputs
+
     private Room currentRoom; // The current room the player is in
     private Room entranceHall, library, diningRoom, kitchen, pantry, greenhouse, study, masterBedroom, hiddenChamber; // Rooms in the game
     private HashSet<Room> visitedRooms; // Set of visited rooms
     public static ArrayList<Room> allUnlockedRooms; // List of all unlocked rooms for the use of magic mirror
     public static ArrayList<Room> allLockedRooms; // List of all locked rooms for the use of the magic mirror
+
     private lockedDoor kitchenPantry, bedroomChamber; // lockedDoor objects
     private ArrayList<String> lockedDirections; // ArrayList to store locked room/directions for goRoom command
+
     private Inventory inventory; // The player's inventory
+
     private Item ancientBook, jewelledDagger, magicMirror, coin, holyBread, vacuum; // Items in the game
     private Item pantryKey, chambersKey; // Keys for locked doors
+
     private Character butler, maid, ghost, cat, securityGuard; // Non-player characters in the game
+
     public static HashMap<String, lockedDoor> lockedDoorsMap; // Maps room + direction to a lockedDoor object
     public static HashMap<String, Item> itemMap; // Map of items
     public static HashMap<String, Character> characterMap; // Map of characters
     private HashMap<String, String> oppositeDirections; // Map of opposite directions for back command
+
     private Stack<String> backCommandStack = new Stack<>();
+
     private boolean mapEnabled, randomCharacterMovement; // Flags for if map is enabled and random character movement
 
 
