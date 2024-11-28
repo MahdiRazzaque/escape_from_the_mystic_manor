@@ -220,6 +220,12 @@ public class Inventory {
                 return;
             }
         }
+
+        if(numberOfItem(item) < quantity) { // Check if the player has enough of the item to drop
+            System.out.println("You do not have enough of that item to drop.");
+            return;
+        }
+
         currentRoom.addItemToRoomInventory(item, quantity); // Add the item to the room's inventory
         removeItem(item, quantity); // Remove the item from the player's inventory
         System.out.println("You have dropped " + quantity + " " + item.getName() + (quantity > 1 ? "s" : "")); // Display confirmation message
@@ -242,6 +248,12 @@ public class Inventory {
             System.out.println("You do not have enough inventory space for this");
             return;
         }
+
+        if(currentRoom.numberOfItemInRoomInventory(item) < quantity) { // Check if the room has enough of the item to pick up
+            System.out.println("There are not enough of that item here to pick up.");
+            return;
+        }
+
         currentRoom.removeItemFromRoomInventory(item, quantity); // Remove the item from the room's inventory
         addItem(item, quantity); // Add the item to the player's inventory
         System.out.println("You have picked up " + quantity + " " + item.getName() + (quantity > 1 ? "s" : "")); // Display confirmation message
