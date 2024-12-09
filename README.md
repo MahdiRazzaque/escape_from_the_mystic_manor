@@ -57,5 +57,5 @@ This game is written in Java and structured into several classes, each responsib
 -   **`Parser`:** Reads user input and interprets it as commands.
 -   **`Room`:** Represents a location in the game.
 -   **`Utils`:** Provides utility functions used throughout the game.
-- 
+
 Enjoy your adventure in the Mystic Manor!
